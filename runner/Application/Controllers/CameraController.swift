@@ -15,6 +15,7 @@ protocol CameraControllerDelegate: AnyObject {
 
 class CameraController {
     weak var delegate: CameraControllerDelegate?
+    private let settingsController: SettingsController
 
     // MARK: - Camera State
     private(set) var currentPosition: Position
@@ -34,8 +35,10 @@ class CameraController {
         initialPosition: Position,
         initialZoom: CGFloat = 0.6,
         courseSize: CGSize,
-        screenSize: CGSize
+        screenSize: CGSize,
+        settingsController: SettingsController
     ) {
+        self.settingsController = settingsController
         self.currentPosition = initialPosition
         self.currentZoom = max(minZoom, min(maxZoom, initialZoom))
         self.courseSize = courseSize
@@ -80,9 +83,12 @@ extension CameraController {
         position: Position,
         immediate: Bool = false
     ) {
+        let cameraSpeed = settingsController.userPreferences.cameraSpeed
+        let duration = immediate ? 0.0 : (2.0 - cameraSpeed) // Invert so higher setting = faster camera
+
         updatePosition(
             position,
-            duration: immediate ? 0.0 : 1.0,
+            duration: duration,
             animationType: immediate ? .none : .easeOut,
             force: true
         )
@@ -150,9 +156,12 @@ extension CameraController {
             y: ballPosition.y + ballVelocity.dy * predictionFactor
         )
 
+        let cameraSpeed = settingsController.userPreferences.cameraSpeed
+        let duration = 1.0 - (cameraSpeed * 0.5) // Speed range: 0.5s to 1.0s
+
         updatePosition(
             predictedPosition,
-            duration: 0.5,
+            duration: duration,
             animationType: .easeOut
         )
     }

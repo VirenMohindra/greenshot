@@ -290,7 +290,7 @@ class NetworkService: NetworkServiceProtocol {
             throw NetworkError.requestFailed(401, "Authentication required")
         }
 
-        // TODO: Implement Course serialization when Course becomes Codable
+        // NOTE: Course serialization requires Course to implement Codable protocol
         // For now, just return a mock response
         try await Task.sleep(nanoseconds: 1_000_000_000) // Simulate upload
         return CourseUploadResponse(
@@ -301,7 +301,7 @@ class NetworkService: NetworkServiceProtocol {
     }
 
     func downloadCourse(courseId: String) async throws -> Course {
-        // TODO: Implement Course deserialization when Course becomes Codable
+        // NOTE: Course deserialization requires Course to implement Codable protocol
         // For now, throw an error
         throw NetworkError.requestFailed(501, "Course download not yet implemented")
     }

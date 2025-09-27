@@ -1,13 +1,13 @@
 //
-//  runnerUITests.swift
-//  runnerUITests
+//  GreenShotUITests.swift
+//  GreenShotUITests
 //
 //  Created by Viren Mohindra on 9/26/25.
 //
 
 import XCTest
 
-final class runnerUITests: XCTestCase {
+final class GreenShotUITests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.

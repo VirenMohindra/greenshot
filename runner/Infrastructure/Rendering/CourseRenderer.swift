@@ -22,12 +22,6 @@ class CourseRenderer: CourseRendererProtocol {
     }
 
     func renderCourse(hole: Hole, in scene: SKScene) {
-        print("🎨 CourseRenderer.renderCourse called")
-        print("   Scene size: \(scene.size)")
-        print("   Course world size: \(courseWorldSize)")
-        print("   Hole tee position: \(hole.teePosition)")
-        print("   Hole pin position: \(hole.pinPosition)")
-
         // Clear existing course
         clearCourse(in: scene)
 
@@ -37,11 +31,8 @@ class CourseRenderer: CourseRendererProtocol {
         // Create container for course elements
         let courseContainer = SKNode()
         courseContainer.name = "courseContainer"
-        courseContainer.zPosition = 0  // Changed from -5 to 0 to be visible
+        courseContainer.zPosition = 0
         scene.addChild(courseContainer)
-
-        print("   Created courseContainer with zPosition: \(courseContainer.zPosition)")
-        print("   Scene children count before rendering: \(scene.children.count)")
 
         // Render course layers
         createRoughArea(in: courseContainer)
@@ -49,10 +40,6 @@ class CourseRenderer: CourseRendererProtocol {
         createGreenArea(at: hole.pinPosition, in: courseContainer)
         createTeeBox(at: hole.teePosition, in: courseContainer)
         createVisualEnhancements(in: courseContainer)
-
-        print("   CourseContainer children count after rendering: \(courseContainer.children.count)")
-        print("   Scene children count after rendering: \(scene.children.count)")
-        print("🎨 CourseRenderer.renderCourse completed")
     }
 
     func clearCourse(in scene: SKScene) {
@@ -61,16 +48,12 @@ class CourseRenderer: CourseRendererProtocol {
 
     // MARK: - Course Elements
     private func createRoughArea(in container: SKNode) {
-        print("   🌿 Creating rough area with size: \(courseWorldSize)")
-
         // Main rough background
         let roughRect = SKShapeNode(rect: CGRect(origin: .zero, size: courseWorldSize))
         roughRect.fillColor = SKColor(red: 0.16, green: 0.42, blue: 0.18, alpha: 1.0)
         roughRect.strokeColor = .clear
         roughRect.zPosition = 0
         container.addChild(roughRect)
-
-        print("   🌿 Added rough background at origin, size: \(courseWorldSize)")
 
         // Add varied rough patches
         for _ in 0..<15 {

@@ -106,6 +106,226 @@ class SettingsController: ObservableObject {
         savePreferences()
     }
 
+    func updateShowTrajectoryPreview(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: enabled,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateShowControlRadius(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: enabled,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateEnableTrailEffects(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: enabled,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateAutoZoomOnShot(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: enabled,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateMusicEnabled(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: enabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateHapticFeedback(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: enabled,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateShowCelebrations(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: enabled,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateHighContrastMode(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: enabled,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateReducedMotion(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: enabled,
+            largerText: userPreferences.largerText,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
+    func updateLargerText(_ enabled: Bool) {
+        userPreferences = UserPreferences(
+            soundEnabled: userPreferences.soundEnabled,
+            musicEnabled: userPreferences.musicEnabled,
+            hapticFeedback: userPreferences.hapticFeedback,
+            showTrajectoryPreview: userPreferences.showTrajectoryPreview,
+            autoZoomOnShot: userPreferences.autoZoomOnShot,
+            showControlRadius: userPreferences.showControlRadius,
+            courseDifficulty: userPreferences.courseDifficulty,
+            courseLength: userPreferences.courseLength,
+            obstacleFrequency: userPreferences.obstacleFrequency,
+            showCelebrations: userPreferences.showCelebrations,
+            enableTrailEffects: userPreferences.enableTrailEffects,
+            cameraSpeed: userPreferences.cameraSpeed,
+            highContrastMode: userPreferences.highContrastMode,
+            reducedMotion: userPreferences.reducedMotion,
+            largerText: enabled,
+            lastUpdated: Date()
+        )
+        savePreferences()
+    }
+
     func resetToDefaults() {
         userPreferences = .default
         savePreferences()

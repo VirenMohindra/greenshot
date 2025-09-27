@@ -274,18 +274,18 @@ class PersistenceService: PersistenceServiceProtocol {
 
     // MARK: - Course Data (UserDefaults for now - courses aren't SwiftData compatible yet)
     func saveCourse(_ course: Course) throws {
-        // TODO: Implement when Course becomes Codable
+        // NOTE: Course persistence requires Course to implement Codable protocol
         // For now, just log the action
         print("📝 Course save requested: \(course.name) - not yet implemented")
     }
 
     func loadSavedCourses() throws -> [Course] {
-        // TODO: Implement when Course becomes Codable
+        // NOTE: Course persistence requires Course to implement Codable protocol
         return []
     }
 
     func deleteCourse(_ courseId: UUID) throws {
-        // TODO: Implement when Course becomes Codable
+        // NOTE: Course persistence requires Course to implement Codable protocol
         print("🗑️ Course delete requested: \(courseId) - not yet implemented")
     }
 

@@ -78,21 +78,18 @@ class CleanGameScene: SKScene {
     }
 
     private func observeGameController() {
-        print("🔔 CleanGameScene: Setting up notification observers")
-
         // Listen for game state changes
         NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("GameStateChanged"),
+            forName: NotificationNames.gameStateChanged,
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            print("🔔 CleanGameScene: Received GameStateChanged notification")
             self?.updateForGameState()
         }
 
         // Listen for shot taken notifications
         NotificationCenter.default.addObserver(
-            forName: NSNotification.Name("ShotTaken"),
+            forName: NotificationNames.shotTaken,
             object: nil,
             queue: .main
         ) { [weak self] notification in
@@ -150,7 +147,6 @@ extension CleanGameScene {
         )
 
         // Focus camera on tee
-        print("   📷 Focusing camera on tee position: \(hole.teePosition)")
         dependencies.cameraController.focusOn(position: hole.teePosition, immediate: true)
     }
 
@@ -244,38 +240,26 @@ extension CleanGameScene {
     }
 
     private func applyShotImpulse(_ impulse: Velocity) {
-        print("🚀 Applying impulse: \(impulse)")
         guard let ballNode = ballNode,
-              let physicsBody = ballNode.physicsBody else {
-            print("❌ No ball node or physics body to apply impulse to")
-            return
-        }
+              let physicsBody = ballNode.physicsBody else { return }
 
         // Apply impulse to the physics body
         let impulseVector = CGVector(dx: impulse.dx, dy: impulse.dy)
         physicsBody.applyImpulse(impulseVector)
-        print("✅ Impulse applied successfully")
     }
 }
 
 // MARK: - Touch Handling
 extension CleanGameScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        print("👆 CleanGameScene: touchesBegan called with \(touches.count) touches")
-
-        guard let ball = dependencies.gameController.golfBall else {
-            print("❌ No golf ball found in game controller")
-            return
-        }
-
-        print("🔍 Touch began - Ball at: \(ball.position), Ball node exists: \(ballNode != nil)")
+        guard let ball = dependencies.gameController.golfBall else { return }
 
         dependencies.touchInputHandler.handleTouchesBegan(
             touches,
             in: self,
             ballPosition: ball.position,
             ballVelocity: ball.velocity,
-            resetButtonPosition: nil // Would get from UI renderer
+            resetButtonPosition: nil
         )
     }
 
@@ -500,8 +484,6 @@ extension CleanGameScene: CameraControllerDelegate {
     func cameraController(_ controller: CameraController, didUpdatePosition position: Position, duration: TimeInterval, animationType: CameraAnimationType) {
         guard let camera = camera else { return }
 
-        print("   📷 Camera moving to position: \(position.cgPoint) with duration: \(duration)")
-
         if duration > 0 {
             let moveAction = SKAction.move(to: position.cgPoint, duration: duration)
             moveAction.timingMode = animationType.skTimingMode
@@ -510,7 +492,6 @@ extension CleanGameScene: CameraControllerDelegate {
             camera.position = position.cgPoint
         }
 
-        print("   📷 Camera final position: \(camera.position)")
         viewModel?.updateCameraPosition(position)
     }
 

@@ -24,20 +24,27 @@ protocol BallRendererProtocol {
 }
 
 class BallRenderer: BallRendererProtocol {
+    private let settingsController: SettingsController
+
+    init(settingsController: SettingsController) {
+        self.settingsController = settingsController
+    }
 
     func createBallNode() -> SKNode {
         let ballRadius = Constants.Ball.radius
         let ballContainer = SKNode()
         ballContainer.name = "golfBall"
 
-        // Control radius indicator (shows where you can touch)
-        let controlRadius = SKShapeNode(circleOfRadius: Constants.Ball.controlRadius)
-        controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: Constants.Colors.UI.controlRadiusAlpha)
-        controlRadius.fillColor = .clear
-        controlRadius.lineWidth = Constants.UI.borderWidth
-        controlRadius.zPosition = 5
-        controlRadius.name = "controlRadius"
-        ballContainer.addChild(controlRadius)
+        // Control radius indicator (shows where you can touch) - only if enabled in settings
+        if settingsController.userPreferences.showControlRadius {
+            let controlRadius = SKShapeNode(circleOfRadius: Constants.Ball.controlRadius)
+            controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: Constants.Colors.UI.controlRadiusAlpha)
+            controlRadius.fillColor = .clear
+            controlRadius.lineWidth = Constants.UI.borderWidth
+            controlRadius.zPosition = 5
+            controlRadius.name = "controlRadius"
+            ballContainer.addChild(controlRadius)
+        }
 
         // Main ball
         let ball = SKShapeNode(circleOfRadius: ballRadius)
@@ -113,6 +120,11 @@ class BallRenderer: BallRendererProtocol {
 // MARK: - Ball Physics Visualization
 extension BallRenderer {
     func createTrajectoryPreview(_ positions: [Position]) -> [SKNode] {
+        // Only create trajectory preview if enabled in settings
+        guard settingsController.userPreferences.showTrajectoryPreview else {
+            return []
+        }
+
         var previewNodes: [SKNode] = []
 
         for (index, position) in positions.enumerated() {
@@ -250,6 +262,11 @@ extension BallRenderer {
 
     // MARK: - Ball Trail System
     func createBallTrail(from positions: [Position], in scene: SKScene) {
+        // Only create trail if enabled in settings
+        guard settingsController.userPreferences.enableTrailEffects else {
+            return
+        }
+
         // Clear existing trail
         clearBallTrail(from: scene)
 

@@ -1,13 +1,13 @@
 //
-//  runnerUITestsLaunchTests.swift
-//  runnerUITests
+//  GreenShotUITestsLaunchTests.swift
+//  GreenShotUITests
 //
 //  Created by Viren Mohindra on 9/26/25.
 //
 
 import XCTest
 
-final class runnerUITestsLaunchTests: XCTestCase {
+final class GreenShotUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

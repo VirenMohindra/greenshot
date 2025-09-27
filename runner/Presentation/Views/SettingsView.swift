@@ -9,35 +9,20 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var settingsController: SettingsController
 
-    // Game Settings
-    @State private var soundEnabled = true
-    @State private var musicEnabled = true
-    @State private var hapticFeedback = true
-    @State private var showTrajectoryPreview = true
-    @State private var autoZoomOnShot = true
-    @State private var showControlRadius = true
-
-    // Course Generation Settings
-    @State private var courseDifficulty: CourseDifficulty = .medium
-    @State private var courseLength: CourseLength = .nine
-    @State private var obstacleFrequency: ObstacleFrequency = .medium
-
-    // Visual Settings
-    @State private var showCelebrations = true
-    @State private var enableTrailEffects = true
-    @State private var cameraSpeed: Double = 0.5
-
-    // Accessibility
-    @State private var highContrastMode = false
-    @State private var reducedMotion = false
-    @State private var largerText = false
+    init() {
+        // Get SettingsController from DependencyContainer
+        let container = DependencyContainer()
+        _settingsController = StateObject(wrappedValue: container.settingsController)
+    }
 
     // Development
     #if DEBUG
     @State private var showEnvironmentPicker = false
     #endif
 
+    // UI Helper Enums
     enum CourseDifficulty: String, CaseIterable {
         case easy = "Easy"
         case medium = "Medium"
@@ -67,30 +52,45 @@ struct SettingsView: View {
                     SettingsToggle(
                         title: "Trajectory Preview",
                         subtitle: "Show shot prediction line",
-                        isOn: $showTrajectoryPreview,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.showTrajectoryPreview },
+                            set: { settingsController.updateShowTrajectoryPreview($0) }
+                        ),
                         icon: "arrow.trianglehead.clockwise"
                     )
 
                     SettingsToggle(
                         title: "Auto Zoom on Shot",
                         subtitle: "Follow ball during shot",
-                        isOn: $autoZoomOnShot,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.autoZoomOnShot },
+                            set: { settingsController.updateAutoZoomOnShot($0) }
+                        ),
                         icon: "viewfinder"
                     )
 
                     SettingsToggle(
                         title: "Show Control Radius",
                         subtitle: "Display touch area around ball",
-                        isOn: $showControlRadius,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.showControlRadius },
+                            set: { settingsController.updateShowControlRadius($0) }
+                        ),
                         icon: "circle.dashed"
                     )
 
                     HStack {
                         Label("Camera Speed", systemImage: "camera")
                         Spacer()
-                        Slider(value: $cameraSpeed, in: 0.1...1.0)
+                        Slider(
+                            value: Binding(
+                                get: { settingsController.userPreferences.cameraSpeed },
+                                set: { settingsController.updateCameraSpeed($0) }
+                            ),
+                            in: 0.1...1.0
+                        )
                             .frame(width: 120)
-                        Text("\(Int(cameraSpeed * 100))%")
+                        Text("\(Int(settingsController.userPreferences.cameraSpeed * 100))%")
                             .foregroundColor(.secondary)
                             .frame(width: 35)
                     }
@@ -101,56 +101,152 @@ struct SettingsView: View {
                     SettingsToggle(
                         title: "Sound Effects",
                         subtitle: "Ball hits, hole completion",
-                        isOn: $soundEnabled,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.soundEnabled },
+                            set: { settingsController.updateSoundEnabled($0) }
+                        ),
                         icon: "speaker.wave.2"
                     )
 
                     SettingsToggle(
                         title: "Background Music",
                         subtitle: "Ambient golf course sounds",
-                        isOn: $musicEnabled,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.musicEnabled },
+                            set: { settingsController.updateMusicEnabled($0) }
+                        ),
                         icon: "music.note"
                     )
 
                     SettingsToggle(
                         title: "Haptic Feedback",
                         subtitle: "Vibration on ball contact",
-                        isOn: $hapticFeedback,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.hapticFeedback },
+                            set: { settingsController.updateHapticFeedback($0) }
+                        ),
                         icon: "iphone.radiowaves.left.and.right"
                     )
 
                     SettingsToggle(
                         title: "Celebration Effects",
                         subtitle: "Animations for good shots",
-                        isOn: $showCelebrations,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.showCelebrations },
+                            set: { settingsController.updateShowCelebrations($0) }
+                        ),
                         icon: "party.popper"
                     )
 
                     SettingsToggle(
                         title: "Ball Trail Effects",
                         subtitle: "Show ball movement trail",
-                        isOn: $enableTrailEffects,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.enableTrailEffects },
+                            set: { settingsController.updateEnableTrailEffects($0) }
+                        ),
                         icon: "scribble.variable"
                     )
                 }
 
                 // Course Generation Section
                 Section("Course Generation") {
-                    Picker("Course Difficulty", selection: $courseDifficulty) {
+                    Picker("Course Difficulty", selection: Binding(
+                        get: {
+                            CourseDifficulty.allCases.first { $0.rawValue.lowercased() == settingsController.userPreferences.courseDifficulty.lowercased() } ?? .medium
+                        },
+                        set: { difficulty in
+                            var prefs = settingsController.userPreferences
+                            prefs = UserPreferences(
+                                soundEnabled: prefs.soundEnabled,
+                                musicEnabled: prefs.musicEnabled,
+                                hapticFeedback: prefs.hapticFeedback,
+                                showTrajectoryPreview: prefs.showTrajectoryPreview,
+                                autoZoomOnShot: prefs.autoZoomOnShot,
+                                showControlRadius: prefs.showControlRadius,
+                                courseDifficulty: difficulty.rawValue.lowercased(),
+                                courseLength: prefs.courseLength,
+                                obstacleFrequency: prefs.obstacleFrequency,
+                                showCelebrations: prefs.showCelebrations,
+                                enableTrailEffects: prefs.enableTrailEffects,
+                                cameraSpeed: prefs.cameraSpeed,
+                                highContrastMode: prefs.highContrastMode,
+                                reducedMotion: prefs.reducedMotion,
+                                largerText: prefs.largerText,
+                                lastUpdated: Date()
+                            )
+                            settingsController.userPreferences = prefs
+                            settingsController.savePreferences()
+                        }
+                    )) {
                         ForEach(CourseDifficulty.allCases, id: \.self) { difficulty in
                             Text(difficulty.rawValue).tag(difficulty)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
 
-                    Picker("Course Length", selection: $courseLength) {
+                    Picker("Course Length", selection: Binding(
+                        get: {
+                            CourseLength.allCases.first { $0.rawValue.lowercased().contains(settingsController.userPreferences.courseLength) } ?? .nine
+                        },
+                        set: { length in
+                            var prefs = settingsController.userPreferences
+                            prefs = UserPreferences(
+                                soundEnabled: prefs.soundEnabled,
+                                musicEnabled: prefs.musicEnabled,
+                                hapticFeedback: prefs.hapticFeedback,
+                                showTrajectoryPreview: prefs.showTrajectoryPreview,
+                                autoZoomOnShot: prefs.autoZoomOnShot,
+                                showControlRadius: prefs.showControlRadius,
+                                courseDifficulty: prefs.courseDifficulty,
+                                courseLength: length.rawValue.lowercased(),
+                                obstacleFrequency: prefs.obstacleFrequency,
+                                showCelebrations: prefs.showCelebrations,
+                                enableTrailEffects: prefs.enableTrailEffects,
+                                cameraSpeed: prefs.cameraSpeed,
+                                highContrastMode: prefs.highContrastMode,
+                                reducedMotion: prefs.reducedMotion,
+                                largerText: prefs.largerText,
+                                lastUpdated: Date()
+                            )
+                            settingsController.userPreferences = prefs
+                            settingsController.savePreferences()
+                        }
+                    )) {
                         ForEach(CourseLength.allCases, id: \.self) { length in
                             Text(length.rawValue).tag(length)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
 
-                    Picker("Obstacle Frequency", selection: $obstacleFrequency) {
+                    Picker("Obstacle Frequency", selection: Binding(
+                        get: {
+                            ObstacleFrequency.allCases.first { $0.rawValue.lowercased() == settingsController.userPreferences.obstacleFrequency.lowercased() } ?? .medium
+                        },
+                        set: { frequency in
+                            var prefs = settingsController.userPreferences
+                            prefs = UserPreferences(
+                                soundEnabled: prefs.soundEnabled,
+                                musicEnabled: prefs.musicEnabled,
+                                hapticFeedback: prefs.hapticFeedback,
+                                showTrajectoryPreview: prefs.showTrajectoryPreview,
+                                autoZoomOnShot: prefs.autoZoomOnShot,
+                                showControlRadius: prefs.showControlRadius,
+                                courseDifficulty: prefs.courseDifficulty,
+                                courseLength: prefs.courseLength,
+                                obstacleFrequency: frequency.rawValue.lowercased(),
+                                showCelebrations: prefs.showCelebrations,
+                                enableTrailEffects: prefs.enableTrailEffects,
+                                cameraSpeed: prefs.cameraSpeed,
+                                highContrastMode: prefs.highContrastMode,
+                                reducedMotion: prefs.reducedMotion,
+                                largerText: prefs.largerText,
+                                lastUpdated: Date()
+                            )
+                            settingsController.userPreferences = prefs
+                            settingsController.savePreferences()
+                        }
+                    )) {
                         ForEach(ObstacleFrequency.allCases, id: \.self) { frequency in
                             Text(frequency.rawValue).tag(frequency)
                         }
@@ -163,21 +259,30 @@ struct SettingsView: View {
                     SettingsToggle(
                         title: "High Contrast Mode",
                         subtitle: "Increase visual contrast",
-                        isOn: $highContrastMode,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.highContrastMode },
+                            set: { settingsController.updateHighContrastMode($0) }
+                        ),
                         icon: "circle.lefthalf.filled"
                     )
 
                     SettingsToggle(
                         title: "Reduce Motion",
                         subtitle: "Minimize animations",
-                        isOn: $reducedMotion,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.reducedMotion },
+                            set: { settingsController.updateReducedMotion($0) }
+                        ),
                         icon: "tortoise"
                     )
 
                     SettingsToggle(
                         title: "Larger Text",
                         subtitle: "Increase text size",
-                        isOn: $largerText,
+                        isOn: Binding(
+                            get: { settingsController.userPreferences.largerText },
+                            set: { settingsController.updateLargerText($0) }
+                        ),
                         icon: "textformat.size"
                     )
                 }
@@ -215,7 +320,7 @@ struct SettingsView: View {
 
                     Button(action: {
                         // Reset to defaults
-                        resetToDefaults()
+                        settingsController.resetToDefaults()
                     }) {
                         Label("Reset to Defaults", systemImage: "arrow.counterclockwise")
                             .foregroundColor(.red)
@@ -239,23 +344,6 @@ struct SettingsView: View {
         #endif
     }
 
-    private func resetToDefaults() {
-        soundEnabled = true
-        musicEnabled = true
-        hapticFeedback = true
-        showTrajectoryPreview = true
-        autoZoomOnShot = true
-        showControlRadius = true
-        courseDifficulty = .medium
-        courseLength = .nine
-        obstacleFrequency = .medium
-        showCelebrations = true
-        enableTrailEffects = true
-        cameraSpeed = 0.5
-        highContrastMode = false
-        reducedMotion = false
-        largerText = false
-    }
 }
 
 struct SettingsToggle: View {

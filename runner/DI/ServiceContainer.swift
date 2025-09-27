@@ -174,7 +174,8 @@ class DefaultServiceConfiguration: ServiceConfiguration {
             CameraController(
                 initialPosition: Position(x: 400, y: 800),
                 courseSize: CGSize(width: 800, height: 1600),
-                screenSize: UIScreen.main.bounds.size
+                screenSize: UIScreen.main.bounds.size,
+                settingsController: container.resolve(SettingsController.self)
             )
         }
 
@@ -272,7 +273,7 @@ class DefaultServiceConfiguration: ServiceConfiguration {
         }
 
         container.register(BallRendererProtocol.self, scope: .singleton) {
-            BallRenderer()
+            BallRenderer(settingsController: container.resolve(SettingsController.self))
         }
 
         container.register(UIRendererProtocol.self, scope: .singleton) {
