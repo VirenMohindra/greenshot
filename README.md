@@ -48,7 +48,7 @@
 ### Installation
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/VirenMohindra/greenshot.git
    cd runner
    ```
 
@@ -80,16 +80,16 @@ GreenShot follows **Clean Architecture** principles with **Domain-Driven Design*
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                  Presentation Layer                     │
-│  SwiftUI Views • ViewModels • CleanGameScene           │
+│  SwiftUI Views • ViewModels • CleanGameScene            │
 ├─────────────────────────────────────────────────────────┤
 │                  Application Layer                      │
-│  Use Cases • Controllers • Game State Management       │
+│  Use Cases • Controllers • Game State Management        │
 ├─────────────────────────────────────────────────────────┤
 │                   Domain Layer                          │
-│  Entities • Value Objects • Business Services          │
+│  Entities • Value Objects • Business Services           │
 ├─────────────────────────────────────────────────────────┤
 │                Infrastructure Layer                     │
-│  SpriteKit • Physics • Rendering • Persistence         │
+│  SpriteKit • Physics • Rendering • Persistence          │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -119,8 +119,8 @@ runner/
 ├── Application/        # Use cases and controllers
 ├── Infrastructure/     # Platform implementations
 ├── Presentation/       # SwiftUI views and ViewModels
-├── DI/                # Dependency injection container
-└── Game/              # SpriteKit scene orchestration
+├── DI/                 # Dependency injection container
+└── Game/               # SpriteKit scene orchestration
 ```
 
 ### Key Development Commands
