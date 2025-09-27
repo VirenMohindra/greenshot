@@ -82,6 +82,9 @@ struct CleanGameView: View {
                     .padding()
             }
         }
+        .sheet(isPresented: $viewModel.showGameCenter) {
+            GameCenterView(gameCenterManager: container.gameCenterManager)
+        }
         .sheet(isPresented: $showCourseOverview) {
             if let course = viewModel.currentCourse {
                 CourseOverviewView(

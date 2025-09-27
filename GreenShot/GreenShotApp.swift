@@ -11,7 +11,7 @@ import SwiftUI
 struct GreenShotApp: App {
     var body: some Scene {
         WindowGroup {
-            CleanGameView()
+            AppCoordinatorView()
         }
     }
 }

@@ -26,6 +26,7 @@ class GameViewModel: ObservableObject {
     @Published var showSettings = false
     @Published var showLeaderboard = false
     @Published var showHoleDebug = false
+    @Published var showGameCenter = false
 
     // Celebration and progression
     @Published var isCelebrationVisible = false
@@ -242,7 +243,11 @@ extension GameViewModel {
     }
 
     func openGameCenter() {
-        gameController.openGameCenter()
+        showGameCenter = true
+    }
+
+    func closeGameCenter() {
+        showGameCenter = false
     }
 }
 
