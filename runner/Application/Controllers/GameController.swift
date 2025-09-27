@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 
+@MainActor
 class GameController: ObservableObject {
     // MARK: - Published Properties
     @Published private(set) var gameState: GameState = .menu
@@ -177,7 +178,7 @@ extension GameController {
               let hole = currentCourse?.currentHole,
               gameState == .playing else { return }
 
-        let result = takeShotUseCase.executeShot(
+        let _ = takeShotUseCase.executeShot(
             ball: ball,
             dragStart: dragStart,
             dragEnd: dragEnd,
@@ -245,7 +246,7 @@ extension GameController {
 extension GameController {
     func checkForHoleCompletion(ballPosition: Position, ballVelocity: Velocity) {
         guard let hole = currentCourse?.currentHole,
-              let player = currentPlayer,
+              let _ = currentPlayer,
               !isCurrentHoleCompleted else { return }
 
         let isCompleted = completeHoleUseCase.checkHoleCompletion(
@@ -311,7 +312,7 @@ extension GameController {
         let result = navigateHolesUseCase.moveToNextHole(course: course, player: player)
 
         switch result {
-        case .success(let hole, let progress, let isLastHole):
+        case .success(let hole, let progress, _):
             print("➡️ Moving to \(progress)")
             setupForHole(hole)
 

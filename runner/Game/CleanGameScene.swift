@@ -115,9 +115,10 @@ extension CleanGameScene {
            newHole.id != currentHole?.id {
             print("🏌️ Setting up hole \(newHole.number)")
             setupHole(newHole)
+            return // Don't update ball position after setup - setupHole already positioned it correctly
         }
 
-        // Update ball position
+        // Update ball position only if we're not setting up a new hole
         if let ball = gameController.golfBall {
             updateBallPosition(ball)
         }

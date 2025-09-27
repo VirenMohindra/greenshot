@@ -12,6 +12,8 @@ struct GameCenterView: View {
     @ObservedObject private var gameCenterManager: GameCenterManager
     @Environment(\.dismiss) private var dismiss
 
+    private let gameCenterDelegate = GameCenterDelegate()
+
     init(gameCenterManager: GameCenterManager) {
         self.gameCenterManager = gameCenterManager
     }
@@ -130,7 +132,7 @@ struct GameCenterView: View {
 
     private func presentGameCenterDashboard() {
         let viewController = GKGameCenterViewController(state: .default)
-        viewController.gameCenterDelegate = GameCenterDelegate()
+        viewController.gameCenterDelegate = gameCenterDelegate
 
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {
@@ -140,7 +142,7 @@ struct GameCenterView: View {
 
     private func presentGameCenterAchievements() {
         let viewController = GKGameCenterViewController(state: .achievements)
-        viewController.gameCenterDelegate = GameCenterDelegate()
+        viewController.gameCenterDelegate = gameCenterDelegate
 
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first {

@@ -9,6 +9,7 @@ import Foundation
 import GameKit
 import Combine
 
+@MainActor
 protocol GameCenterServiceProtocol {
     var isAuthenticated: Bool { get }
     var currentPlayer: String? { get }
@@ -51,8 +52,10 @@ class GameCenterService: GameCenterServiceProtocol {
     ]
 
     // MARK: - Initialization
-    init() {
-        setupGameCenter()
+    nonisolated init() {
+        Task { @MainActor in
+            setupGameCenter()
+        }
     }
 
     // MARK: - Authentication
@@ -100,11 +103,22 @@ class GameCenterService: GameCenterServiceProtocol {
         }
 
         do {
-            // Use GKScore for submitting scores in modern GameKit
+            // Use legacy API wrapped for async - modern API has complex setup requirements
+            // Note: GKScore is deprecated but GKLeaderboardScore has complex setup that requires
+            // additional configuration. Using legacy API with proper async wrapping for compatibility.
             let gkScore = GKScore(leaderboardIdentifier: leaderboardID)
             gkScore.value = Int64(score)
 
-            try await GKScore.report([gkScore])
+            // Use the completion-based API wrapped in withCheckedThrowingContinuation
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                GKScore.report([gkScore]) { error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume()
+                    }
+                }
+            }
             print("✅ Score \(score) submitted to leaderboard \(leaderboardID)")
         } catch {
             print("❌ Failed to submit score: \(error)")
@@ -265,6 +279,7 @@ struct LeaderboardEntry {
 }
 
 // MARK: - Mock Implementation for Development
+@MainActor
 class MockGameCenterService: GameCenterServiceProtocol {
     @Published private(set) var isAuthenticated = false
     @Published private(set) var currentPlayer: String? = "Mock Player"
@@ -272,6 +287,8 @@ class MockGameCenterService: GameCenterServiceProtocol {
     var authenticationPublisher: AnyPublisher<Bool, Never> {
         $isAuthenticated.eraseToAnyPublisher()
     }
+
+    nonisolated init() {}
 
     func authenticate() async {
         // Mock authentication success

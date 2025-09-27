@@ -281,8 +281,6 @@ extension CourseRenderer {
         // Get the ellipse path for boundary testing
         let ellipsePath = CGPath(ellipseIn: CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height), transform: nil)
 
-        let lineSpacing: CGFloat = 8
-        let lineLength: CGFloat = min(size.width, size.height) * 0.6
         let rakeMarkCount = 4
 
         for i in 0..<rakeMarkCount {

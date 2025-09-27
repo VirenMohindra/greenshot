@@ -48,17 +48,6 @@ struct ScoreboardView: View {
                     .frame(height: 40)
                     .background(Color.white.opacity(0.3))
 
-                // Current Hole Score Section
-                ScoreboardSection(
-                    title: "SCORE",
-                    value: scoreDisplay,
-                    color: scoreColor
-                )
-
-                Divider()
-                    .frame(height: 40)
-                    .background(Color.white.opacity(0.3))
-
                 // Total Score Section
                 ScoreboardSection(
                     title: "TOTAL",

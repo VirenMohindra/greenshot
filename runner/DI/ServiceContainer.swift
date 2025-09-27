@@ -158,16 +158,18 @@ class DefaultServiceConfiguration: ServiceConfiguration {
         }
 
         container.register(GameController.self, scope: .scoped) {
-            GameController(
-                takeShotUseCase: container.resolve(TakeShotUseCaseProtocol.self),
-                completeHoleUseCase: container.resolve(CompleteHoleUseCaseProtocol.self),
-                navigateHolesUseCase: container.resolve(NavigateHolesUseCaseProtocol.self),
-                updateCameraUseCase: container.resolve(UpdateCameraUseCaseProtocol.self),
-                holeGenerationService: container.resolve(HoleGenerationServiceProtocol.self),
-                gameCenterService: container.resolve(GameCenterServiceProtocol.self),
-                persistenceService: container.resolve(PersistenceServiceProtocol.self),
-                eventBus: container.resolve(EventBusProtocol.self)
-            )
+            MainActor.assumeIsolated {
+                GameController(
+                    takeShotUseCase: container.resolve(TakeShotUseCaseProtocol.self),
+                    completeHoleUseCase: container.resolve(CompleteHoleUseCaseProtocol.self),
+                    navigateHolesUseCase: container.resolve(NavigateHolesUseCaseProtocol.self),
+                    updateCameraUseCase: container.resolve(UpdateCameraUseCaseProtocol.self),
+                    holeGenerationService: container.resolve(HoleGenerationServiceProtocol.self),
+                    gameCenterService: container.resolve(GameCenterServiceProtocol.self),
+                    persistenceService: container.resolve(PersistenceServiceProtocol.self),
+                    eventBus: container.resolve(EventBusProtocol.self)
+                )
+            }
         }
 
         container.register(CameraController.self, scope: .scoped) {
@@ -184,15 +186,19 @@ class DefaultServiceConfiguration: ServiceConfiguration {
         }
 
         container.register(SettingsController.self, scope: .singleton) {
-            SettingsController(persistenceService: container.resolve(PersistenceServiceProtocol.self))
+            MainActor.assumeIsolated {
+                SettingsController(persistenceService: container.resolve(PersistenceServiceProtocol.self))
+            }
         }
 
         container.register(GameCenterManager.self, scope: .singleton) {
-            GameCenterManager(
-                gameCenterService: container.resolve(GameCenterServiceProtocol.self),
-                persistenceService: container.resolve(PersistenceServiceProtocol.self),
-                eventBus: container.resolve(EventBusProtocol.self)
-            )
+            MainActor.assumeIsolated {
+                GameCenterManager(
+                    gameCenterService: container.resolve(GameCenterServiceProtocol.self),
+                    persistenceService: container.resolve(PersistenceServiceProtocol.self),
+                    eventBus: container.resolve(EventBusProtocol.self)
+                )
+            }
         }
     }
 

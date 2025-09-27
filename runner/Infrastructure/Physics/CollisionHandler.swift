@@ -119,7 +119,7 @@ extension CollisionHandler: SKPhysicsContactDelegate {
         case .physics(let damping, _):
             ball.applyDamping(damping)
 
-        case .collision(let restitution):
+        case .collision(_):
             // Calculate collision response
             let newVelocity = physicsService.calculateCollisionResponse(
                 ballVelocity: ball.velocity,

@@ -16,9 +16,9 @@ protocol PersistenceServiceProtocol {
     func loadUserPreferences() throws -> UserPreferences
 
     // MARK: - Game Data
-    func saveGameSession(_ session: GameSession) throws
-    func loadRecentGameSessions(limit: Int) throws -> [GameSession]
-    func deleteGameSession(_ sessionId: UUID) throws
+    @MainActor func saveGameSession(_ session: GameSession) throws
+    @MainActor func loadRecentGameSessions(limit: Int) throws -> [GameSession]
+    @MainActor func deleteGameSession(_ sessionId: UUID) throws
 
     // MARK: - Course Data
     func saveCourse(_ course: Course) throws
@@ -31,7 +31,7 @@ protocol PersistenceServiceProtocol {
     func updateStatistics(with session: GameSession) throws
 
     // MARK: - Cache Management
-    func clearCache() throws
+    @MainActor func clearCache() throws
     func getDatabaseSize() -> Int64
 }
 
@@ -197,7 +197,6 @@ enum PersistenceError: LocalizedError {
 }
 
 // MARK: - Persistence Service Implementation
-@MainActor
 class PersistenceService: PersistenceServiceProtocol {
     private let modelContainer: ModelContainer
     private let userDefaults: UserDefaults
@@ -231,7 +230,7 @@ class PersistenceService: PersistenceServiceProtocol {
     }
 
     // MARK: - Game Sessions (SwiftData)
-    func saveGameSession(_ session: GameSession) throws {
+    @MainActor func saveGameSession(_ session: GameSession) throws {
         do {
             let context = modelContainer.mainContext
             context.insert(session)
@@ -241,7 +240,7 @@ class PersistenceService: PersistenceServiceProtocol {
         }
     }
 
-    func loadRecentGameSessions(limit: Int = 20) throws -> [GameSession] {
+    @MainActor func loadRecentGameSessions(limit: Int = 20) throws -> [GameSession] {
         do {
             let context = modelContainer.mainContext
             let descriptor = FetchDescriptor<GameSession>(
@@ -255,7 +254,7 @@ class PersistenceService: PersistenceServiceProtocol {
         }
     }
 
-    func deleteGameSession(_ sessionId: UUID) throws {
+    @MainActor func deleteGameSession(_ sessionId: UUID) throws {
         do {
             let context = modelContainer.mainContext
             let descriptor = FetchDescriptor<GameSession>(
@@ -323,7 +322,7 @@ class PersistenceService: PersistenceServiceProtocol {
     }
 
     // MARK: - Cache Management
-    func clearCache() throws {
+    @MainActor func clearCache() throws {
         do {
             let context = modelContainer.mainContext
 
@@ -375,15 +374,15 @@ class MockPersistenceService: PersistenceServiceProtocol {
         return preferences
     }
 
-    func saveGameSession(_ session: GameSession) throws {
+    @MainActor func saveGameSession(_ session: GameSession) throws {
         sessions.append(session)
     }
 
-    func loadRecentGameSessions(limit: Int) throws -> [GameSession] {
+    @MainActor func loadRecentGameSessions(limit: Int) throws -> [GameSession] {
         return Array(sessions.sorted { $0.startTime > $1.startTime }.prefix(limit))
     }
 
-    func deleteGameSession(_ sessionId: UUID) throws {
+    @MainActor func deleteGameSession(_ sessionId: UUID) throws {
         sessions.removeAll { $0.id == sessionId }
     }
 
@@ -408,12 +407,12 @@ class MockPersistenceService: PersistenceServiceProtocol {
     }
 
     func updateStatistics(with session: GameSession) throws {
-        var stats = statistics ?? PlayerStatistics()
+        let stats = statistics ?? PlayerStatistics()
         // Mock implementation - in real implementation we'd properly update stats
         self.statistics = stats
     }
 
-    func clearCache() throws {
+    @MainActor func clearCache() throws {
         preferences = .default
         sessions.removeAll()
         courses.removeAll()

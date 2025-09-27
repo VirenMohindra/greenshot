@@ -83,7 +83,7 @@ extension CameraController {
         position: Position,
         immediate: Bool = false
     ) {
-        let cameraSpeed = settingsController.userPreferences.cameraSpeed
+        let cameraSpeed = MainActor.assumeIsolated { settingsController.userPreferences.cameraSpeed }
         let duration = immediate ? 0.0 : (2.0 - cameraSpeed) // Invert so higher setting = faster camera
 
         updatePosition(
@@ -156,7 +156,7 @@ extension CameraController {
             y: ballPosition.y + ballVelocity.dy * predictionFactor
         )
 
-        let cameraSpeed = settingsController.userPreferences.cameraSpeed
+        let cameraSpeed = MainActor.assumeIsolated { settingsController.userPreferences.cameraSpeed }
         let duration = 1.0 - (cameraSpeed * 0.5) // Speed range: 0.5s to 1.0s
 
         updatePosition(

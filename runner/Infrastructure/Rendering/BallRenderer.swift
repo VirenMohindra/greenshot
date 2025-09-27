@@ -36,7 +36,7 @@ class BallRenderer: BallRendererProtocol {
         ballContainer.name = "golfBall"
 
         // Control radius indicator (shows where you can touch) - only if enabled in settings
-        if settingsController.userPreferences.showControlRadius {
+        if MainActor.assumeIsolated({ settingsController.userPreferences.showControlRadius }) {
             let controlRadius = SKShapeNode(circleOfRadius: Constants.Ball.controlRadius)
             controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: Constants.Colors.UI.controlRadiusAlpha)
             controlRadius.fillColor = .clear
@@ -121,7 +121,8 @@ class BallRenderer: BallRendererProtocol {
 extension BallRenderer {
     func createTrajectoryPreview(_ positions: [Position]) -> [SKNode] {
         // Only create trajectory preview if enabled in settings
-        guard settingsController.userPreferences.showTrajectoryPreview else {
+        let showTrajectoryPreview = MainActor.assumeIsolated { settingsController.userPreferences.showTrajectoryPreview }
+        guard showTrajectoryPreview else {
             return []
         }
 
@@ -263,7 +264,8 @@ extension BallRenderer {
     // MARK: - Ball Trail System
     func createBallTrail(from positions: [Position], in scene: SKScene) {
         // Only create trail if enabled in settings
-        guard settingsController.userPreferences.enableTrailEffects else {
+        let enableTrailEffects = MainActor.assumeIsolated { settingsController.userPreferences.enableTrailEffects }
+        guard enableTrailEffects else {
             return
         }
 
@@ -327,7 +329,6 @@ extension BallRenderer {
 
         // Calculate the two back points of the arrow
         let backDistance: CGFloat = arrowSize
-        let wingSpread: CGFloat = arrowSize * 0.6
 
         let backAngle1 = angle + .pi - 0.4  // Left wing
         let backAngle2 = angle + .pi + 0.4  // Right wing

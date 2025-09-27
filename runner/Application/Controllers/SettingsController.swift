@@ -8,15 +8,18 @@
 import Foundation
 import Combine
 
+@MainActor
 class SettingsController: ObservableObject {
     @Published var userPreferences: UserPreferences = .default
 
-    private let persistenceService: PersistenceServiceProtocol
+    nonisolated private let persistenceService: PersistenceServiceProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    init(persistenceService: PersistenceServiceProtocol) {
+    nonisolated init(persistenceService: PersistenceServiceProtocol) {
         self.persistenceService = persistenceService
-        loadPreferences()
+        Task { @MainActor in
+            loadPreferences()
+        }
     }
 
     // MARK: - Preference Management

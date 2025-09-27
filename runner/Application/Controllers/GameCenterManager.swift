@@ -9,6 +9,7 @@ import Foundation
 import GameKit
 import Combine
 
+@MainActor
 class GameCenterManager: ObservableObject {
 
     // MARK: - Published Properties
@@ -26,7 +27,7 @@ class GameCenterManager: ObservableObject {
     // MARK: - Achievement Tracking
     private var achievementTracker: [String: Double] = [:]
 
-    init(
+    nonisolated init(
         gameCenterService: GameCenterServiceProtocol,
         persistenceService: PersistenceServiceProtocol,
         eventBus: EventBusProtocol
@@ -35,8 +36,10 @@ class GameCenterManager: ObservableObject {
         self.persistenceService = persistenceService
         self.eventBus = eventBus
 
-        setupSubscriptions()
-        setupAchievementTracking()
+        Task { @MainActor in
+            setupSubscriptions()
+            setupAchievementTracking()
+        }
     }
 
     // MARK: - Setup
