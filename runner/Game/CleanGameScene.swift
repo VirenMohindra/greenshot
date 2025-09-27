@@ -78,12 +78,15 @@ class CleanGameScene: SKScene {
     }
 
     private func observeGameController() {
+        print("🔔 CleanGameScene: Setting up notification observers")
+
         // Listen for game state changes
         NotificationCenter.default.addObserver(
             forName: NSNotification.Name("GameStateChanged"),
             object: nil,
             queue: .main
         ) { [weak self] _ in
+            print("🔔 CleanGameScene: Received GameStateChanged notification")
             self?.updateForGameState()
         }
 
@@ -147,6 +150,7 @@ extension CleanGameScene {
         )
 
         // Focus camera on tee
+        print("   📷 Focusing camera on tee position: \(hole.teePosition)")
         dependencies.cameraController.focusOn(position: hole.teePosition, immediate: true)
     }
 
@@ -177,22 +181,24 @@ extension CleanGameScene {
         children.filter { $0.name == "holeRim" }.forEach { $0.removeFromParent() }
 
         // Create hole first (at actual hole position, not offset)
-        let hole = SKShapeNode(circleOfRadius: 15)
-        hole.fillColor = SKColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0) // Dark hole
-        hole.strokeColor = SKColor(red: 0.05, green: 0.05, blue: 0.05, alpha: 1.0)
-        hole.lineWidth = 2
+        let hole = SKShapeNode(circleOfRadius: 18) // Increased size for better visibility
+        hole.fillColor = SKColor.black // Pure black for maximum contrast
+        hole.strokeColor = SKColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Lighter stroke for definition
+        hole.lineWidth = 3
         hole.position = CGPoint(x: position.x, y: position.y)
-        hole.zPosition = 1 // Below everything except ground
+        hole.zPosition = 5 // Higher z-position to ensure visibility above green
         hole.name = "holeVisual"
         addChild(hole)
 
+        print("🕳️ Created hole visual at position: \(hole.position) with z-position: \(hole.zPosition)")
+
         // Add hole rim for more realism
-        let rim = SKShapeNode(circleOfRadius: 17)
+        let rim = SKShapeNode(circleOfRadius: 22) // Increased rim size
         rim.fillColor = .clear
-        rim.strokeColor = SKColor(red: 0.3, green: 0.3, blue: 0.3, alpha: 0.8)
-        rim.lineWidth = 1
+        rim.strokeColor = SKColor(red: 0.4, green: 0.4, blue: 0.4, alpha: 1.0) // More visible rim
+        rim.lineWidth = 2
         rim.position = hole.position
-        rim.zPosition = 1.1
+        rim.zPosition = 5.1
         rim.name = "holeRim"
         addChild(rim)
 
@@ -255,6 +261,8 @@ extension CleanGameScene {
 // MARK: - Touch Handling
 extension CleanGameScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("👆 CleanGameScene: touchesBegan called with \(touches.count) touches")
+
         guard let ball = dependencies.gameController.golfBall else {
             print("❌ No golf ball found in game controller")
             return
@@ -492,6 +500,8 @@ extension CleanGameScene: CameraControllerDelegate {
     func cameraController(_ controller: CameraController, didUpdatePosition position: Position, duration: TimeInterval, animationType: CameraAnimationType) {
         guard let camera = camera else { return }
 
+        print("   📷 Camera moving to position: \(position.cgPoint) with duration: \(duration)")
+
         if duration > 0 {
             let moveAction = SKAction.move(to: position.cgPoint, duration: duration)
             moveAction.timingMode = animationType.skTimingMode
@@ -500,6 +510,7 @@ extension CleanGameScene: CameraControllerDelegate {
             camera.position = position.cgPoint
         }
 
+        print("   📷 Camera final position: \(camera.position)")
         viewModel?.updateCameraPosition(position)
     }
 

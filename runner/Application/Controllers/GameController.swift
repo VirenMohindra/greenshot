@@ -111,6 +111,9 @@ extension GameController {
             // Publish game started event
             eventBus.publish(GameStartedEvent())
 
+            // Post notification for scene to update
+            NotificationCenter.default.post(name: NSNotification.Name("GameStateChanged"), object: nil)
+
         case .failure(let error):
             print("❌ Failed to start game: \(error)")
         }
@@ -118,10 +121,12 @@ extension GameController {
 
     func pauseGame() {
         gameState = .paused
+        NotificationCenter.default.post(name: NSNotification.Name("GameStateChanged"), object: nil)
     }
 
     func resumeGame() {
         gameState = .playing
+        NotificationCenter.default.post(name: NSNotification.Name("GameStateChanged"), object: nil)
     }
 
     func endGame() {
@@ -198,6 +203,14 @@ extension GameController {
                 impulse: impulse
             )
             self.eventBus.publish(shotEvent)
+
+            // Post NSNotification for SpriteKit scene to apply physics impulse
+            NotificationCenter.default.post(
+                name: NSNotification.Name("ShotTaken"),
+                object: nil,
+                userInfo: ["impulse": impulse]
+            )
+            print("📢 Posted ShotTaken notification with impulse: \(impulse)")
         }
     }
 
