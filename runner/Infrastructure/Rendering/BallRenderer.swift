@@ -26,6 +26,11 @@ protocol BallRendererProtocol {
 class BallRenderer: BallRendererProtocol {
     private let settingsController: SettingsController
 
+    // Performance optimization: Reuse trail node instead of creating/destroying
+    private var currentTrailNode: SKShapeNode?
+    private var lastTrailUpdate: TimeInterval = 0
+    private let trailUpdateInterval: TimeInterval = 1.0 / 30.0 // 30fps instead of 60fps
+
     init(settingsController: SettingsController) {
         self.settingsController = settingsController
     }
@@ -261,59 +266,60 @@ extension BallRenderer {
         print("🚫 Touch feedback: Ball control indicators hidden")
     }
 
-    // MARK: - Ball Trail System
+    // MARK: - Ball Trail System (Optimized)
     func createBallTrail(from positions: [Position], in scene: SKScene) {
         // Only create trail if enabled in settings
         let enableTrailEffects = MainActor.assumeIsolated { settingsController.userPreferences.enableTrailEffects }
         guard enableTrailEffects else {
+            clearBallTrail(from: scene)
             return
         }
 
-        // Clear existing trail
-        clearBallTrail(from: scene)
+        // Performance: Throttle updates to 30fps
+        let currentTime = CACurrentMediaTime()
+        guard currentTime - lastTrailUpdate >= trailUpdateInterval else { return }
+        lastTrailUpdate = currentTime
 
-        guard positions.count > 1 else { return }
+        // Performance: Use fewer positions (15 instead of 30)
+        let maxPositions = 15
+        let optimizedPositions = positions.count > maxPositions ?
+            Array(positions.suffix(maxPositions)) : positions
 
-        // Create trail path
+        guard optimizedPositions.count > 1 else {
+            clearBallTrail(from: scene)
+            return
+        }
+
+        // Performance: Reuse existing trail node instead of creating new one
+        if currentTrailNode == nil {
+            currentTrailNode = SKShapeNode()
+            currentTrailNode?.strokeColor = SKColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.6)
+            currentTrailNode?.lineWidth = Constants.Trail.lineWidth
+            currentTrailNode?.zPosition = 4
+            currentTrailNode?.name = "ballTrail"
+            scene.addChild(currentTrailNode!)
+        }
+
+        // Update path on existing node
         let path = CGMutablePath()
-        path.move(to: positions[0].cgPoint)
+        path.move(to: optimizedPositions[0].cgPoint)
 
-        for i in 1..<positions.count {
-            path.addLine(to: positions[i].cgPoint)
+        for i in 1..<optimizedPositions.count {
+            path.addLine(to: optimizedPositions[i].cgPoint)
         }
 
-        let trail = SKShapeNode(path: path)
-        trail.strokeColor = SKColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.6)
-        trail.lineWidth = Constants.Trail.lineWidth
-        trail.zPosition = 4
-        trail.name = "ballTrail"
+        currentTrailNode?.path = path
 
-        // Add fade animation
-        let fadeAction = SKAction.fadeAlpha(to: 0.0, duration: Constants.Animation.trailFadeDuration)
-        let removeAction = SKAction.removeFromParent()
-        trail.run(SKAction.sequence([fadeAction, removeAction]))
-
-        scene.addChild(trail)
-
-        // Add trail dots for emphasis
-        for (index, position) in positions.enumerated() where index % Constants.Trail.dotSpacing == 0 {
-            let dot = SKShapeNode(circleOfRadius: Constants.Trail.dotRadius)
-            dot.fillColor = SKColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 0.8)
-            dot.strokeColor = .clear
-            dot.position = position.cgPoint
-            dot.zPosition = 4
-            dot.name = "trailDot"
-
-            let fadeAction = SKAction.fadeAlpha(to: 0.0, duration: Constants.Animation.trailFadeDuration)
-            let removeAction = SKAction.removeFromParent()
-            dot.run(SKAction.sequence([fadeAction, removeAction]))
-
-            scene.addChild(dot)
-        }
+        // Performance: Simplified alpha fade based on distance rather than animation
+        let fadeAlpha = max(0.3, 1.0 - Double(optimizedPositions.count) / Double(maxPositions))
+        currentTrailNode?.alpha = CGFloat(fadeAlpha)
     }
 
     func clearBallTrail(from scene: SKScene) {
-        scene.children.filter { $0.name == "ballTrail" || $0.name == "trailDot" }.forEach { $0.removeFromParent() }
+        // Performance: Just remove our single trail node instead of filtering all children
+        currentTrailNode?.removeFromParent()
+        currentTrailNode = nil
+        lastTrailUpdate = 0
     }
 
     private func createArrowPath(at position: CGPoint, direction: Position) -> CGPath {

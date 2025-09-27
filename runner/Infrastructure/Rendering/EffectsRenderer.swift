@@ -16,15 +16,29 @@ protocol EffectsRendererProtocol {
 
 class EffectsRenderer: EffectsRendererProtocol {
 
+    // Performance: Pool reusable particle nodes
+    private var particlePool: [SKShapeNode] = []
+    private let maxPoolSize = 20
+
+    init() {
+        // Pre-populate particle pool
+        for _ in 0..<maxPoolSize {
+            let particle = SKShapeNode(circleOfRadius: 4)
+            particlePool.append(particle)
+        }
+    }
+
     func createHoleInCelebration(at position: Position, celebrationLevel: CelebrationLevel, in scene: SKScene) {
-        // Create particle-like celebration effects
-        let particleCount = celebrationLevel.particleCount
+        // Performance: Reduce particle count significantly
+        let particleCount = min(8, celebrationLevel.particleCount / 3) // Reduce by 66%
 
         for i in 0..<particleCount {
-            let particle = SKShapeNode(circleOfRadius: 4)
+            let particle = getPooledParticle()
             particle.fillColor = [.yellow, .orange, .green, .blue, .white][i % 5]
             particle.position = position.cgPoint
             particle.zPosition = 50
+            particle.alpha = 1.0 // Reset alpha
+            particle.setScale(1.0) // Reset scale
             scene.addChild(particle)
 
             let angle = CGFloat(i) * .pi * 2 / CGFloat(particleCount)
@@ -32,19 +46,38 @@ class EffectsRenderer: EffectsRendererProtocol {
             let endX = position.x + cos(angle) * distance
             let endY = position.y + sin(angle) * distance
 
-            let moveOut = SKAction.move(to: CGPoint(x: endX, y: endY), duration: 0.8)
-            let fadeOut = SKAction.fadeOut(withDuration: 0.8)
-            let remove = SKAction.removeFromParent()
+            // Performance: Simplified animation with shorter duration
+            let moveOut = SKAction.move(to: CGPoint(x: endX, y: endY), duration: 0.5)
+            let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+            let returnToPool = SKAction.run { [weak self] in
+                self?.returnParticleToPool(particle)
+            }
 
             particle.run(SKAction.sequence([
                 SKAction.group([moveOut, fadeOut]),
-                remove
+                returnToPool
             ]))
         }
 
-        // Add sparkle effects for higher celebration levels
-        if celebrationLevel == .major || celebrationLevel == .spectacular {
+        // Performance: Only add sparkle for spectacular level
+        if celebrationLevel == .spectacular {
             createSparkleEffect(at: position, in: scene)
+        }
+    }
+
+    private func getPooledParticle() -> SKShapeNode {
+        if let particle = particlePool.popLast() {
+            return particle
+        } else {
+            // Pool exhausted, create new one
+            return SKShapeNode(circleOfRadius: 4)
+        }
+    }
+
+    private func returnParticleToPool(_ particle: SKShapeNode) {
+        particle.removeFromParent()
+        if particlePool.count < maxPoolSize {
+            particlePool.append(particle)
         }
     }
 

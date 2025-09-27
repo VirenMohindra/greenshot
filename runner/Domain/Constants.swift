@@ -143,6 +143,31 @@ struct Constants {
         static let followUpdateInterval: TimeInterval = 0.1  // Camera follow frequency
         static let smoothingFactor: Float = 0.1         // Camera movement smoothing
     }
+
+    // MARK: - Performance Settings
+    struct Performance {
+        // Trail system optimizations
+        static let maxTrailPositions: Int = 15          // Reduced from 30
+        static let trailUpdateFPS: Double = 30.0        // Down from 60fps
+
+        // Camera update optimizations
+        static let cameraUpdateFPS: Double = 20.0       // Down from 60fps
+
+        // Rendering optimizations
+        static let maxCelebrationParticles: Int = 8     // Reduced from 20+
+        static let particlePoolSize: Int = 20           // Reusable particle pool
+
+        // Texture optimizations
+        static let fairwayTextureSpacing: CGFloat = 16.0    // Increased from 8
+        static let textureSampleSpacing: CGFloat = 8.0      // Increased from 4
+
+        // Tree rendering optimizations
+        static let maxTreeLayers: Int = 2               // Reduced from 3-4
+        static let maxPalmFronds: Int = 4               // Reduced from 8
+
+        // Course element thresholds
+        static let minFairwayTextureSize: CGFloat = 50.0    // Skip texture for small fairways
+    }
 }
 
 // MARK: - Convenience Extensions

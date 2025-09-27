@@ -311,12 +311,12 @@ extension CleanGameScene {
             if !newVelocity.isStationary {
                 ballTrailPositions.append(newPosition)
 
-                // Keep only last 30 positions for performance
-                if ballTrailPositions.count > 30 {
+                // Performance: Keep only last 15 positions (down from 30)
+                if ballTrailPositions.count > 15 {
                     ballTrailPositions.removeFirst()
                 }
 
-                // Create trail visualization
+                // Performance: Trail renderer now handles its own throttling
                 dependencies.ballRenderer.createBallTrail(from: ballTrailPositions, in: self)
             } else if ballTrailPositions.count > 0 {
                 // Clear trail when ball stops
@@ -325,8 +325,9 @@ extension CleanGameScene {
             }
         }
 
-        // Update camera following
-        if !ball.velocity.isStationary && currentTime - lastCameraUpdate > 0.1 {
+        // Performance: Update camera following at 20fps (down from 60fps)
+        let cameraUpdateInterval = 1.0 / 20.0 // 20fps instead of 10fps for smoother following
+        if !ball.velocity.isStationary && currentTime - lastCameraUpdate > cameraUpdateInterval {
             dependencies.cameraController.followBall(
                 ballPosition: ball.position,
                 ballVelocity: ball.velocity

@@ -17,6 +17,11 @@ protocol CourseRendererProtocol {
 class CourseRenderer: CourseRendererProtocol {
     private let courseWorldSize: CGSize
 
+    // Performance optimization: Cache textures and reusable nodes
+    private var textureCache: [String: SKTexture] = [:]
+    private var fairwayNodePool: [SKShapeNode] = []
+    private var obstacleNodePool: [String: [SKNode]] = [:]
+
     init(courseWorldSize: CGSize) {
         self.courseWorldSize = courseWorldSize
     }
@@ -124,8 +129,15 @@ class CourseRenderer: CourseRendererProtocol {
 
     private func addFairwayTexture(to fairway: SKShapeNode, path: CGPath) {
         let pathBounds = path.boundingBox
-        let lineSpacing: CGFloat = 8
-        let sampleSpacing: CGFloat = 4 // How often to sample along the line
+
+        // Performance: Reduce texture density by 50%
+        let lineSpacing: CGFloat = 16 // Increased from 8
+        let sampleSpacing: CGFloat = 8 // Increased from 4
+
+        // Performance: Early exit for very small fairways
+        if pathBounds.width < 50 || pathBounds.height < 50 {
+            return
+        }
 
         for x in stride(from: pathBounds.minX, to: pathBounds.maxX, by: lineSpacing) {
             var lineSegments: [(start: CGPoint, end: CGPoint)] = []
@@ -159,18 +171,22 @@ class CourseRenderer: CourseRendererProtocol {
                 lineSegments.append((start: segmentStart, end: segmentEnd))
             }
 
-            // Create line nodes for each segment that's actually in the fairway
-            for segment in lineSegments {
-                // Only draw segments that are long enough to be visible
-                let segmentLength = abs(segment.end.y - segment.start.y)
-                if segmentLength > sampleSpacing * 2 {
-                    let line = SKShapeNode()
-                    let linePath = CGMutablePath()
-                    linePath.move(to: segment.start)
-                    linePath.addLine(to: segment.end)
-                    line.path = linePath
+            // Performance: Batch line creation and use thicker lines to compensate for reduced density
+            if !lineSegments.isEmpty {
+                let combinedPath = CGMutablePath()
+                for segment in lineSegments {
+                    // Only draw segments that are long enough to be visible
+                    let segmentLength = abs(segment.end.y - segment.start.y)
+                    if segmentLength > sampleSpacing * 2 {
+                        combinedPath.move(to: segment.start)
+                        combinedPath.addLine(to: segment.end)
+                    }
+                }
+
+                if !combinedPath.isEmpty {
+                    let line = SKShapeNode(path: combinedPath)
                     line.strokeColor = SKColor(red: 0.22, green: 0.50, blue: 0.26, alpha: 0.3)
-                    line.lineWidth = 1
+                    line.lineWidth = 1.5 // Slightly thicker to compensate for reduced density
                     line.zPosition = 1
                     fairway.addChild(line)
                 }
@@ -366,25 +382,17 @@ extension CourseRenderer {
         let trunkHeight = size.height * 0.45
         let crownRadius = size.width * 0.55
 
-        // Trunk with slight taper
-        let trunkPath = CGMutablePath()
-        let topWidth = trunkWidth * 0.8
-        trunkPath.move(to: CGPoint(x: -trunkWidth/2, y: -trunkHeight))
-        trunkPath.addLine(to: CGPoint(x: trunkWidth/2, y: -trunkHeight))
-        trunkPath.addLine(to: CGPoint(x: topWidth/2, y: 0))
-        trunkPath.addLine(to: CGPoint(x: -topWidth/2, y: 0))
-        trunkPath.closeSubpath()
-
-        let trunk = SKShapeNode(path: trunkPath)
+        // Simple trunk rectangle instead of complex path
+        let trunk = SKShapeNode(rectOf: CGSize(width: trunkWidth, height: trunkHeight))
         trunk.fillColor = SKColor(red: 0.35, green: 0.22, blue: 0.12, alpha: 1.0)
-        trunk.strokeColor = SKColor(red: 0.25, green: 0.15, blue: 0.08, alpha: 1.0)
-        trunk.lineWidth = 1
+        trunk.strokeColor = .clear // Performance: Remove stroke
+        trunk.position = CGPoint(x: 0, y: -trunkHeight * 0.5)
         container.addChild(trunk)
 
-        // Multiple crown layers for depth
-        for i in 0..<3 {
-            let layerRadius = crownRadius * (1.0 - CGFloat(i) * 0.15)
-            let yOffset = CGFloat(i) * crownRadius * 0.2
+        // Performance: Reduce crown layers from 3 to 2
+        for i in 0..<2 {
+            let layerRadius = crownRadius * (1.0 - CGFloat(i) * 0.2)
+            let yOffset = CGFloat(i) * crownRadius * 0.15
 
             let crown = SKShapeNode(circleOfRadius: layerRadius)
             crown.fillColor = SKColor(
@@ -394,7 +402,7 @@ extension CourseRenderer {
                 alpha: 0.9 - CGFloat(i) * 0.1
             )
             crown.strokeColor = .clear
-            crown.position = CGPoint(x: CGFloat(i - 1) * 2, y: crownRadius * 0.6 + yOffset)
+            crown.position = CGPoint(x: 0, y: crownRadius * 0.6 + yOffset)
             crown.zPosition = -CGFloat(i)
             container.addChild(crown)
         }
@@ -410,16 +418,15 @@ extension CourseRenderer {
         // Trunk
         let trunk = SKShapeNode(rectOf: CGSize(width: trunkWidth, height: trunkHeight))
         trunk.fillColor = SKColor(red: 0.4, green: 0.25, blue: 0.15, alpha: 1.0)
-        trunk.strokeColor = SKColor(red: 0.3, green: 0.18, blue: 0.1, alpha: 1.0)
-        trunk.lineWidth = 1
+        trunk.strokeColor = .clear // Performance: Remove stroke
         trunk.position = CGPoint(x: 0, y: -trunkHeight * 0.5)
         container.addChild(trunk)
 
-        // Triangular pine crown with multiple layers
-        for i in 0..<4 {
-            let layerWidth = size.width * (0.8 - CGFloat(i) * 0.15)
-            let layerHeight = crownHeight * 0.35
-            let yPos = crownHeight * 0.4 - CGFloat(i) * layerHeight * 0.6
+        // Performance: Reduce layers from 4 to 2
+        for i in 0..<2 {
+            let layerWidth = size.width * (0.8 - CGFloat(i) * 0.2)
+            let layerHeight = crownHeight * 0.5
+            let yPos = crownHeight * 0.3 - CGFloat(i) * layerHeight * 0.4
 
             let trianglePath = CGMutablePath()
             trianglePath.move(to: CGPoint(x: 0, y: yPos + layerHeight * 0.5))
@@ -434,8 +441,7 @@ extension CourseRenderer {
                 blue: 0.12,
                 alpha: 1.0
             )
-            layer.strokeColor = SKColor(red: 0.06, green: 0.25, blue: 0.08, alpha: 1.0)
-            layer.lineWidth = 1
+            layer.strokeColor = .clear // Performance: Remove stroke
             layer.zPosition = -CGFloat(i)
             container.addChild(layer)
         }
@@ -447,33 +453,24 @@ extension CourseRenderer {
         let trunkWidth = size.width * 0.15
         let trunkHeight = size.height * 0.7
 
-        // Curved trunk with segments
-        for i in 0..<5 {
-            let segmentHeight = trunkHeight / 5
-            let segmentY = -trunkHeight + CGFloat(i) * segmentHeight + segmentHeight * 0.5
-            let curve = sin(CGFloat(i) * 0.3) * size.width * 0.1
+        // Performance: Simplified trunk - single rectangle instead of 5 segments
+        let trunk = SKShapeNode(rectOf: CGSize(width: trunkWidth, height: trunkHeight))
+        trunk.fillColor = SKColor(red: 0.6, green: 0.4, blue: 0.2, alpha: 1.0)
+        trunk.strokeColor = .clear // Performance: Remove stroke
+        trunk.position = CGPoint(x: 0, y: -trunkHeight * 0.5)
+        container.addChild(trunk)
 
-            let segment = SKShapeNode(rectOf: CGSize(width: trunkWidth, height: segmentHeight))
-            segment.fillColor = SKColor(red: 0.6, green: 0.4, blue: 0.2, alpha: 1.0)
-            segment.strokeColor = SKColor(red: 0.5, green: 0.3, blue: 0.15, alpha: 1.0)
-            segment.lineWidth = 1
-            segment.position = CGPoint(x: curve, y: segmentY)
-            container.addChild(segment)
-        }
-
-        // Palm fronds
-        let frondCount = 8
+        // Performance: Reduce fronds from 8 to 4
+        let frondCount = 4
         for i in 0..<frondCount {
             let angle = (CGFloat(i) / CGFloat(frondCount)) * 2 * .pi
             let frondLength = size.width * 0.6
             let frondWidth = size.width * 0.1
 
+            // Performance: Simple line instead of quad curve
             let frondPath = CGMutablePath()
             frondPath.move(to: CGPoint(x: 0, y: 0))
-            frondPath.addQuadCurve(
-                to: CGPoint(x: frondLength * cos(angle), y: frondLength * sin(angle)),
-                control: CGPoint(x: frondLength * 0.5 * cos(angle), y: frondLength * 0.7 * sin(angle))
-            )
+            frondPath.addLine(to: CGPoint(x: frondLength * cos(angle), y: frondLength * sin(angle)))
 
             let frond = SKShapeNode(path: frondPath)
             frond.strokeColor = SKColor(red: 0.2, green: 0.6, blue: 0.25, alpha: 1.0)
