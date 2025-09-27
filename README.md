@@ -1,7 +1,7 @@
 # GreenShot 🏌️
 
 <div align="center">
-  <img src="runner/Assets.xcassets/AppIcon.appiconset/Icon-1024.png" alt="GreenShot App Icon" width="200" height="200" style="border-radius: 40px;">
+  <img src="GreenShot/Assets.xcassets/AppIcon.appiconset/Icon-1024.png" alt="GreenShot App Icon" width="200" height="200" style="border-radius: 40px;">
 
   **A premium iOS golf game featuring procedural course generation, realistic physics, and Game Center integration**
 
