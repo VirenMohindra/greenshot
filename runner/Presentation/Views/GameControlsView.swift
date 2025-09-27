@@ -213,7 +213,10 @@ struct PauseOverlay: View {
         completeHoleUseCase: CompleteHoleUseCase(scoringService: ScoringService()),
         navigateHolesUseCase: NavigateHolesUseCase(),
         updateCameraUseCase: UpdateCameraUseCase(),
-        holeGenerationService: HoleGenerationService(scoringService: ScoringService())
+        holeGenerationService: HoleGenerationService(scoringService: ScoringService()),
+        gameCenterService: MockGameCenterService(),
+        persistenceService: MockPersistenceService(),
+        eventBus: EventBus()
     )
 
     let viewModel = GameViewModel(gameController: gameController)

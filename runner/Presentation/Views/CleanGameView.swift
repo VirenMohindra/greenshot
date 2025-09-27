@@ -13,11 +13,17 @@ struct CleanGameView: View {
     @State private var gameScene: CleanGameScene?
     @State private var showCourseOverview = false
 
-    // Shared dependency container
+    // Shared dependency container (legacy bridge)
     private let container: DependencyContainer
 
     init() {
-        // Create shared dependency injection container
+        // Configure services if not already configured
+        let serviceContainer = ServiceContainer.shared
+        if serviceContainer.resolve(PhysicsServiceProtocol.self) == nil {
+            DefaultServiceConfiguration().configure(container: serviceContainer)
+        }
+
+        // Use legacy bridge for compatibility
         let container = DependencyContainer()
         let gameController = container.gameController
         let gameViewModel = GameViewModel(gameController: gameController)
@@ -94,47 +100,6 @@ struct CleanGameView: View {
             }
         }
     }
-}
-
-// MARK: - Dependency Injection Container
-class DependencyContainer {
-    // MARK: - Services
-    lazy var physicsService: PhysicsServiceProtocol = PhysicsService()
-    lazy var scoringService: ScoringServiceProtocol = ScoringService()
-    lazy var holeGenerationService: HoleGenerationServiceProtocol = HoleGenerationService(scoringService: scoringService)
-
-    // MARK: - Use Cases
-    lazy var takeShotUseCase: TakeShotUseCaseProtocol = TakeShotUseCase(physicsService: physicsService)
-    lazy var completeHoleUseCase: CompleteHoleUseCaseProtocol = CompleteHoleUseCase(scoringService: scoringService)
-    lazy var navigateHolesUseCase: NavigateHolesUseCaseProtocol = NavigateHolesUseCase()
-    lazy var updateCameraUseCase: UpdateCameraUseCaseProtocol = UpdateCameraUseCase()
-
-    // MARK: - Controllers
-    lazy var gameController: GameController = GameController(
-        takeShotUseCase: takeShotUseCase,
-        completeHoleUseCase: completeHoleUseCase,
-        navigateHolesUseCase: navigateHolesUseCase,
-        updateCameraUseCase: updateCameraUseCase,
-        holeGenerationService: holeGenerationService
-    )
-
-    lazy var inputController: InputController = InputController()
-    lazy var cameraController: CameraController = CameraController(
-        initialPosition: Position(x: 400, y: 800), // Center of course
-        courseSize: CGSize(width: 800, height: 1600),
-        screenSize: UIScreen.main.bounds.size
-    )
-
-    // MARK: - Infrastructure
-    lazy var physicsWorld: PhysicsWorldProtocol = PhysicsWorld()
-    lazy var collisionHandler: CollisionHandler = CollisionHandler(physicsService: physicsService)
-    lazy var touchInputHandler: TouchInputHandler = TouchInputHandler()
-
-    // MARK: - Renderers
-    lazy var courseRenderer: CourseRendererProtocol = CourseRenderer(courseWorldSize: CGSize(width: 800, height: 1600))
-    lazy var ballRenderer: BallRendererProtocol = BallRenderer()
-    lazy var uiRenderer: UIRendererProtocol = UIRenderer(scoringService: scoringService)
-    lazy var effectsRenderer: EffectsRendererProtocol = EffectsRenderer()
 }
 
 #Preview {

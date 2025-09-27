@@ -2,7 +2,8 @@
 //  GameManager.swift
 //  runner
 //
-//  Game state management and business logic
+//  DEPRECATED: This class has been replaced by GameController
+//  All functionality has been moved to GameController with proper dependency injection
 //
 
 import Foundation
@@ -10,6 +11,7 @@ import SwiftData
 import GameKit
 import Combine
 
+@available(*, deprecated, message: "Use GameController instead. This class will be removed in a future version.")
 @MainActor
 class GameManager: ObservableObject {
     // MARK: - Published Properties
@@ -86,22 +88,9 @@ class GameManager: ObservableObject {
         print("Score submitted: \(totalScore)")
     }
 
-    func loadLeaderboard(completion: @escaping ([LeaderboardEntry]) -> Void) {
-        // Mock leaderboard data for now
-        let mockEntries = [
-            LeaderboardEntry(rank: 1, playerName: "Player 1", score: -5),
-            LeaderboardEntry(rank: 2, playerName: "Player 2", score: -3),
-            LeaderboardEntry(rank: 3, playerName: "Player 3", score: -1),
-            LeaderboardEntry(rank: 4, playerName: "You", score: totalScore),
-            LeaderboardEntry(rank: 5, playerName: "Player 5", score: 2)
-        ]
-        completion(mockEntries)
+    @available(*, deprecated, message: "Use GameController.loadLeaderboard() instead")
+    func loadLeaderboard(completion: @escaping ([Any]) -> Void) {
+        // Deprecated - use GameController instead
+        completion([])
     }
-}
-
-// MARK: - Models
-struct LeaderboardEntry {
-    let rank: Int
-    let playerName: String
-    let score: Int
 }

@@ -64,7 +64,7 @@ extension Player {
 }
 
 // MARK: - Statistics
-struct PlayerStatistics {
+struct PlayerStatistics: Codable {
     private(set) var roundsPlayed: Int = 0
     private(set) var totalStrokes: Int = 0
     private(set) var holesCompleted: Int = 0
@@ -186,7 +186,7 @@ extension Round {
 }
 
 // MARK: - Achievements
-struct Achievement {
+struct Achievement: Codable {
     let id: UUID
     let title: String
     let description: String

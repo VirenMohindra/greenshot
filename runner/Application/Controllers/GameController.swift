@@ -20,6 +20,11 @@ class GameController: ObservableObject {
     @Published private(set) var lastCompletedScore: Score?
     @Published private(set) var lastCelebrationLevel: CelebrationLevel = .none
 
+    // GameCenter integration
+    @Published private(set) var isGameCenterAuthenticated: Bool = false
+    @Published private(set) var gameCenterPlayer: String?
+    @Published private(set) var totalScore: Int = 0
+
     // MARK: - Use Cases
     private let takeShotUseCase: TakeShotUseCaseProtocol
     private let completeHoleUseCase: CompleteHoleUseCaseProtocol
@@ -28,23 +33,51 @@ class GameController: ObservableObject {
 
     // MARK: - Services
     private let holeGenerationService: HoleGenerationServiceProtocol
+    private let gameCenterService: GameCenterServiceProtocol
+    private let persistenceService: PersistenceServiceProtocol
+    private let eventBus: EventBusProtocol
 
     // MARK: - Game State
     private let courseWorldSize = CGSize(width: 800, height: 1600)
     private var isCurrentHoleCompleted = false
+    private var cancellables = Set<AnyCancellable>()
+    private var currentGameSession: GameSession?
 
     init(
         takeShotUseCase: TakeShotUseCaseProtocol,
         completeHoleUseCase: CompleteHoleUseCaseProtocol,
         navigateHolesUseCase: NavigateHolesUseCaseProtocol,
         updateCameraUseCase: UpdateCameraUseCaseProtocol,
-        holeGenerationService: HoleGenerationServiceProtocol
+        holeGenerationService: HoleGenerationServiceProtocol,
+        gameCenterService: GameCenterServiceProtocol,
+        persistenceService: PersistenceServiceProtocol,
+        eventBus: EventBusProtocol
     ) {
         self.takeShotUseCase = takeShotUseCase
         self.completeHoleUseCase = completeHoleUseCase
         self.navigateHolesUseCase = navigateHolesUseCase
         self.updateCameraUseCase = updateCameraUseCase
         self.holeGenerationService = holeGenerationService
+        self.gameCenterService = gameCenterService
+        self.persistenceService = persistenceService
+        self.eventBus = eventBus
+
+        setupGameCenterSubscriptions()
+    }
+
+    private func setupGameCenterSubscriptions() {
+        // Setup subscriptions on main actor
+        Task { @MainActor in
+            // Subscribe to GameCenter authentication changes
+            gameCenterService.authenticationPublisher
+                .receive(on: DispatchQueue.main)
+                .assign(to: \.isGameCenterAuthenticated, on: self)
+                .store(in: &cancellables)
+
+            // Update initial values
+            isGameCenterAuthenticated = gameCenterService.isAuthenticated
+            gameCenterPlayer = gameCenterService.currentPlayer
+        }
     }
 }
 
@@ -72,6 +105,12 @@ extension GameController {
             setupForHole(hole)
             gameState = .playing
 
+            // Start new game session for persistence
+            startNewGameSession()
+
+            // Publish game started event
+            eventBus.publish(GameStartedEvent())
+
         case .failure(let error):
             print("❌ Failed to start game: \(error)")
         }
@@ -93,11 +132,35 @@ extension GameController {
 
         switch result {
         case .success(let finalScore, _, _, _):
+            totalScore = finalScore
             print("🏆 Game completed with score: \(finalScore)")
+
+            // Complete game session for persistence
+            completeGameSession()
+
+            // Create a Score object for the event - using total strokes and total par
+            let totalPar = currentCourse?.holes.reduce(0) { $0 + $1.par } ?? 36
+            let score = Score(strokes: finalScore, par: totalPar)
+            eventBus.publish(GameEndedEvent(finalScore: score))
+
+            // Submit score to GameCenter
+            Task {
+                await submitScoreToGameCenter(finalScore)
+            }
+
             gameState = .gameOver
 
         case .failure(let error):
             print("❌ Failed to end game: \(error)")
+        }
+    }
+
+    private func submitScoreToGameCenter(_ score: Int) async {
+        do {
+            try await gameCenterService.submitScore(score, to: "com.runner.leaderboard.total_score")
+            print("✅ Score submitted to GameCenter: \(score)")
+        } catch {
+            print("❌ Failed to submit score to GameCenter: \(error)")
         }
     }
 }
@@ -128,12 +191,13 @@ extension GameController {
             self.currentStrokes += 1
             print("🏌️ Shot taken! Strokes: \(self.currentStrokes)")
 
-            // Notify scene to apply physics impulse
-            NotificationCenter.default.post(
-                name: NSNotification.Name("ShotTaken"),
-                object: nil,
-                userInfo: ["impulse": impulse]
+            // Publish shot taken event via EventBus
+            let shotEvent = ShotTakenEvent(
+                power: Float(power),
+                direction: 0.0, // Calculate direction from drag vectors
+                impulse: impulse
             )
+            self.eventBus.publish(shotEvent)
         }
     }
 
@@ -195,6 +259,19 @@ extension GameController {
 
         print("⛳ Hole completed! Score: \(result.score.displayText)")
 
+        // Create HoleScore for persistence
+        let holeScore = HoleScore(
+            holeNumber: hole.number,
+            par: hole.par,
+            strokes: currentStrokes
+        )
+
+        // Update game session with hole completion
+        updateGameSession(withHoleScore: holeScore)
+
+        // Publish hole completed event
+        eventBus.publish(HoleCompletedEvent(hole: hole, score: result.score))
+
         // Publish celebration data for UI
         lastCompletedScore = result.score
         lastCelebrationLevel = result.celebrationLevel
@@ -255,8 +332,9 @@ extension GameController {
             let course = self.currentCourse
             self.currentCourse = course
 
-            // Notify scene of game state change
-            NotificationCenter.default.post(name: NSNotification.Name("GameStateChanged"), object: nil)
+            // Publish game state change event via EventBus
+            let gameStateEvent = GameStateChangedEvent(newState: self.gameState)
+            self.eventBus.publish(gameStateEvent)
         }
     }
 }
@@ -302,6 +380,135 @@ extension GameController {
             courseSize: courseWorldSize,
             screenSize: screenSize
         )
+    }
+}
+
+// MARK: - GameCenter Integration
+extension GameController {
+    func authenticateGameCenter() async {
+        await gameCenterService.authenticate()
+    }
+
+    func loadLeaderboard() async throws -> [LeaderboardEntry] {
+        return try await gameCenterService.loadLeaderboard("com.runner.leaderboard.total_score")
+    }
+
+    func reportAchievement(_ achievementID: String, progress: Double) async {
+        do {
+            try await gameCenterService.reportAchievement(achievementID, progress: progress)
+        } catch {
+            print("❌ Failed to report achievement: \(error)")
+        }
+    }
+}
+
+// MARK: - Game Persistence
+extension GameController {
+    func startNewGameSession() {
+        guard let player = currentPlayer,
+              let course = currentCourse else { return }
+
+        let session = GameSession(
+            playerName: player.displayName,
+            courseName: course.name,
+            holeCount: course.holes.count,
+            totalPar: course.holes.reduce(0) { $0 + $1.par }
+        )
+
+        currentGameSession = session
+
+        do {
+            try persistenceService.saveGameSession(session)
+            print("📝 Started new game session: \(session.id)")
+        } catch {
+            print("❌ Failed to save game session: \(error)")
+        }
+    }
+
+    func updateGameSession(withHoleScore holeScore: HoleScore) {
+        guard let session = currentGameSession else { return }
+
+        // Update session with hole completion
+        var updatedHoleScores = session.decodedHoleScores
+        updatedHoleScores.append(holeScore)
+
+        // Create updated session
+        let updatedSession = GameSession(
+            id: session.id,
+            playerName: session.playerName,
+            courseName: session.courseName,
+            holeCount: session.holeCount,
+            totalStrokes: session.totalStrokes + holeScore.strokes,
+            totalPar: session.totalPar,
+            startTime: session.startTime,
+            endTime: session.endTime,
+            isCompleted: session.isCompleted,
+            holeScores: updatedHoleScores,
+            achievements: session.decodedAchievements
+        )
+
+        currentGameSession = updatedSession
+
+        do {
+            try persistenceService.saveGameSession(updatedSession)
+            print("📝 Updated game session with hole \(holeScore.holeNumber)")
+        } catch {
+            print("❌ Failed to update game session: \(error)")
+        }
+    }
+
+    func completeGameSession() {
+        guard let session = currentGameSession else { return }
+
+        // Mark session as completed
+        let completedSession = GameSession(
+            id: session.id,
+            playerName: session.playerName,
+            courseName: session.courseName,
+            holeCount: session.holeCount,
+            totalStrokes: session.totalStrokes,
+            totalPar: session.totalPar,
+            startTime: session.startTime,
+            endTime: Date(),
+            isCompleted: true,
+            holeScores: session.decodedHoleScores,
+            achievements: session.decodedAchievements
+        )
+
+        currentGameSession = completedSession
+
+        do {
+            try persistenceService.saveGameSession(completedSession)
+            try persistenceService.updateStatistics(with: completedSession)
+            print("🏆 Completed game session: \(completedSession.id)")
+            print("📊 Updated player statistics")
+        } catch {
+            print("❌ Failed to complete game session: \(error)")
+        }
+    }
+
+    func loadUserPreferences() {
+        do {
+            let preferences = try persistenceService.loadUserPreferences()
+            print("⚙️ Loaded user preferences: \(preferences)")
+            // Apply preferences to game configuration if needed
+        } catch {
+            print("❌ Failed to load user preferences: \(error)")
+        }
+    }
+
+    func loadPlayerStatistics() {
+        do {
+            if let stats = try persistenceService.loadPlayerStats() {
+                print("📊 Player Statistics:")
+                print("   Rounds Played: \(stats.roundsPlayed)")
+                print("   Best Score: \(stats.bestScore ?? 0)")
+                print("   Total Strokes: \(stats.totalStrokes)")
+                print("   Holes in One: \(stats.holesInOne)")
+            }
+        } catch {
+            print("❌ Failed to load player statistics: \(error)")
+        }
     }
 }
 
