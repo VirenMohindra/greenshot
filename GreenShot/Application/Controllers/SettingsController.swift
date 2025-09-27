@@ -1,6 +1,6 @@
 //
 //  SettingsController.swift
-//  runner
+//  GreenShot
 //
 //  Manages user preferences and settings persistence
 //

@@ -1,6 +1,6 @@
 //
 //  CleanGameScene.swift
-//  runner
+//  GreenShot
 //
 //  Lean SpriteKit scene that orchestrates all architectural layers
 //

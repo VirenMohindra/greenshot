@@ -1,6 +1,6 @@
 //
 //  GameController.swift
-//  runner
+//  GreenShot
 //
 //  Main game coordinator managing all use cases and game state
 //

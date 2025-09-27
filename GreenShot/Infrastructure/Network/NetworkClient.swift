@@ -1,6 +1,6 @@
 //
 //  NetworkClient.swift
-//  runner
+//  GreenShot
 //
 //  Core network client for API communication and multiplayer support
 //

@@ -1,6 +1,6 @@
 //
 //  Shot.swift
-//  runner
+//  GreenShot
 //
 //  Golf shot entity representing individual ball strikes
 //

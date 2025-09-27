@@ -1,6 +1,6 @@
 //
 //  CollisionHandler.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit collision detection and response handler
 //

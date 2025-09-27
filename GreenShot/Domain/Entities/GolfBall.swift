@@ -1,6 +1,6 @@
 //
 //  GolfBall.swift
-//  runner
+//  GreenShot
 //
 //  Golf ball entity with position and physics state
 //

@@ -1,6 +1,6 @@
 //
 //  Hole.swift
-//  runner
+//  GreenShot
 //
 //  Golf hole entity representing a complete hole with tee, pin, obstacles
 //

@@ -1,6 +1,6 @@
 //
 //  Configuration.swift
-//  runner
+//  GreenShot
 //
 //  Runtime configuration management for the golf game
 //  Handles environment-specific settings and user preferences

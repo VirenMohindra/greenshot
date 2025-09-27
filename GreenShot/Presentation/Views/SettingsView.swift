@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  runner
+//  GreenShot
 //
 //  Simple settings view placeholder
 //

@@ -1,6 +1,6 @@
 //
 //  NetworkManager.swift
-//  runner
+//  GreenShot
 //
 //  Network manager that coordinates between NetworkService and EventBus
 //

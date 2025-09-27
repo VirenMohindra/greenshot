@@ -1,6 +1,6 @@
 //
 //  ScoringService.swift
-//  runner
+//  GreenShot
 //
 //  Domain service for golf scoring logic and calculations
 //

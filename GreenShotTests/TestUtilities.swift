@@ -183,7 +183,7 @@ class MockServiceFactory {
 
     static func createMockPersistenceService() -> PersistenceServiceProtocol {
         // Use the mock from the main code
-        return runner.MockPersistenceService()
+        return MockPersistenceService()
     }
 }
 

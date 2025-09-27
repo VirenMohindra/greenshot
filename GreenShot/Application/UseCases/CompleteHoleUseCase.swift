@@ -1,6 +1,6 @@
 //
 //  CompleteHoleUseCase.swift
-//  runner
+//  GreenShot
 //
 //  Use case for handling hole completion and scoring
 //

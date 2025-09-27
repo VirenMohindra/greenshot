@@ -1,6 +1,6 @@
 //
 //  ScoreboardView.swift
-//  runner
+//  GreenShot
 //
 //  Broadcast-style golf scoreboard SwiftUI view
 //

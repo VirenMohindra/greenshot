@@ -1,6 +1,6 @@
 //
 //  CameraController.swift
-//  runner
+//  GreenShot
 //
 //  Controller for managing camera state and animations
 //

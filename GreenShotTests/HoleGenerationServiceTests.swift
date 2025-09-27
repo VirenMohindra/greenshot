@@ -1,6 +1,6 @@
 //
 //  HoleGenerationServiceTests.swift
-//  runnerTests
+//  GreenShotTests
 //
 //  Unit tests for hole generation service
 //

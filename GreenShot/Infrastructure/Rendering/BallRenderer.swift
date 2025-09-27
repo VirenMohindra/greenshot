@@ -1,6 +1,6 @@
 //
 //  BallRenderer.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit renderer for golf ball appearance and animations
 //

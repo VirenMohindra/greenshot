@@ -1,6 +1,6 @@
 //
 //  ServiceContainer.swift
-//  runner
+//  GreenShot
 //
 //  Centralized dependency injection container for the golf game
 //  Provides protocol-based service registration and lifecycle management

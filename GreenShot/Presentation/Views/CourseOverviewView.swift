@@ -1,6 +1,6 @@
 //
 //  CourseOverviewView.swift
-//  runner
+//  GreenShot
 //
 //  Shows overview of all holes in the golf course
 //

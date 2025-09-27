@@ -1,6 +1,6 @@
 //
 //  Obstacle.swift
-//  runner
+//  GreenShot
 //
 //  Golf course obstacle entity (water, bunkers, trees, etc.)
 //

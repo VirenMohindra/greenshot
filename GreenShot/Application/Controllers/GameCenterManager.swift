@@ -1,6 +1,6 @@
 //
 //  GameCenterManager.swift
-//  runner
+//  GreenShot
 //
 //  Comprehensive GameCenter management with automatic achievement tracking
 //

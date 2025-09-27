@@ -1,6 +1,6 @@
 //
 //  NotificationNames.swift
-//  runner
+//  GreenShot
 //
 //  Type-safe notification names for the golf game
 //

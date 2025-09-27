@@ -1,6 +1,6 @@
 //
 //  UIRenderer.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit renderer for HUD and UI overlay elements
 //

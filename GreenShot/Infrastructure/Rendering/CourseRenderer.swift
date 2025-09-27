@@ -1,6 +1,6 @@
 //
 //  CourseRenderer.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit renderer for golf course graphics and terrain
 //

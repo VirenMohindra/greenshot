@@ -1,6 +1,6 @@
 //
 //  ScoringServiceTests.swift
-//  runnerTests
+//  GreenShotTests
 //
 //  Unit tests for scoring service calculations
 //

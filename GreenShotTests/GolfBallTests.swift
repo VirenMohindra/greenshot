@@ -1,6 +1,6 @@
 //
 //  GolfBallTests.swift
-//  runnerTests
+//  GreenShotTests
 //
 //  Unit tests for GolfBall entity physics and state management
 //

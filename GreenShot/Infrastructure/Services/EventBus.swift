@@ -1,6 +1,6 @@
 //
 //  EventBus.swift
-//  runner
+//  GreenShot
 //
 //  Reactive event bus for type-safe communication between components
 //  Provides Combine-based publishers for game events

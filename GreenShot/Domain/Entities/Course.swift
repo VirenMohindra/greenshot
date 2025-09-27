@@ -1,6 +1,6 @@
 //
 //  Course.swift
-//  runner
+//  GreenShot
 //
 //  Golf course entity containing collection of holes
 //

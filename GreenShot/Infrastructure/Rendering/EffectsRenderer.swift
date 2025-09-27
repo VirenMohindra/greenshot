@@ -1,6 +1,6 @@
 //
 //  EffectsRenderer.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit renderer for particle effects and celebrations
 //

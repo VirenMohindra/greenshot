@@ -1,6 +1,6 @@
 //
 //  GameControlsView.swift
-//  runner
+//  GreenShot
 //
 //  Game UI controls and overlays
 //

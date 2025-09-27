@@ -1,6 +1,6 @@
 //
 //  Velocity.swift
-//  runner
+//  GreenShot
 //
 //  Velocity value object for golf ball physics
 //

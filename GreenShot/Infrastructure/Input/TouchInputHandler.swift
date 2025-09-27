@@ -1,6 +1,6 @@
 //
 //  TouchInputHandler.swift
-//  runner
+//  GreenShot
 //
 //  SpriteKit touch input processing and gesture recognition
 //

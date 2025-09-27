@@ -1,6 +1,6 @@
 //
 //  HoleGenerationService.swift
-//  runner
+//  GreenShot
 //
 //  Domain service for procedural golf hole generation
 //

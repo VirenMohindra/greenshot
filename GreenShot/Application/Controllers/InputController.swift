@@ -1,6 +1,6 @@
 //
 //  InputController.swift
-//  runner
+//  GreenShot
 //
 //  Controller for handling touch input and gesture processing
 //

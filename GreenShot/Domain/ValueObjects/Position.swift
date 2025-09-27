@@ -1,6 +1,6 @@
 //
 //  Position.swift
-//  runner
+//  GreenShot
 //
 //  2D position value object for golf game coordinates
 //

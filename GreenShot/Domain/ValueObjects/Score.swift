@@ -1,6 +1,6 @@
 //
 //  Score.swift
-//  runner
+//  GreenShot
 //
 //  Golf scoring value object with par calculations
 //

@@ -1,6 +1,6 @@
 //
 //  Player.swift
-//  runner
+//  GreenShot
 //
 //  Golf player entity with statistics and progress tracking
 //

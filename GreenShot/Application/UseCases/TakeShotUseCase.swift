@@ -1,6 +1,6 @@
 //
 //  TakeShotUseCase.swift
-//  runner
+//  GreenShot
 //
 //  Use case for handling golf shot input and execution
 //

@@ -1,6 +1,6 @@
 //
 //  UpdateCameraUseCase.swift
-//  runner
+//  GreenShot
 //
 //  Use case for managing camera positioning and movement
 //

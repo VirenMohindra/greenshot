@@ -1,6 +1,6 @@
 //
 //  Constants.swift
-//  runner
+//  GreenShot
 //
 //  Central repository for all magic numbers and constants used throughout the golf game
 //

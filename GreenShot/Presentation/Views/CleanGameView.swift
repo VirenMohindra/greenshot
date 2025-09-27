@@ -1,6 +1,6 @@
 //
 //  CleanGameView.swift
-//  runner
+//  GreenShot
 //
 //  Refactored game view using clean architecture
 //

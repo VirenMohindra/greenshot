@@ -1,6 +1,6 @@
 //
 //  EnvironmentSwitcher.swift
-//  runner
+//  GreenShot
 //
 //  Easy environment switching for development and testing
 //

@@ -1,6 +1,6 @@
 //
 //  GameViewModel.swift
-//  runner
+//  GreenShot
 //
 //  View model for game state and reactive UI updates
 //

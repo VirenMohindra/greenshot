@@ -1,6 +1,6 @@
 //
 //  GameCenterView.swift
-//  runner
+//  GreenShot
 //
 //  GameCenter integration UI with leaderboards and achievements
 //

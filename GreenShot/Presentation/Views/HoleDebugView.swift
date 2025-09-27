@@ -1,6 +1,6 @@
 //
 //  HoleDebugView.swift
-//  runner
+//  GreenShot
 //
 //  Debug view to visualize all generated holes in a course
 //

@@ -1,6 +1,6 @@
 //
 //  LeaderboardView.swift
-//  runner
+//  GreenShot
 //
 //  Simple leaderboard view placeholder
 //

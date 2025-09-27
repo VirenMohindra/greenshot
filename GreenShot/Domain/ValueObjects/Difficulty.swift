@@ -1,6 +1,6 @@
 //
 //  Difficulty.swift
-//  runner
+//  GreenShot
 //
 //  Hole difficulty configuration value object
 //

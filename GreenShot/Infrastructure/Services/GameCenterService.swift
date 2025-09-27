@@ -1,6 +1,6 @@
 //
 //  GameCenterService.swift
-//  runner
+//  GreenShot
 //
 //  GameCenter integration service for authentication and leaderboards
 //

@@ -1,6 +1,6 @@
 //
 //  PhysicsServiceTests.swift
-//  runnerTests
+//  GreenShotTests
 //
 //  Unit tests for physics service calculations
 //

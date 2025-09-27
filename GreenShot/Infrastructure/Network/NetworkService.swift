@@ -1,6 +1,6 @@
 //
 //  NetworkService.swift
-//  runner
+//  GreenShot
 //
 //  High-level network service for golf game operations
 //

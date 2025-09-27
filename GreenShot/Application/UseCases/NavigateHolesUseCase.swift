@@ -1,6 +1,6 @@
 //
 //  NavigateHolesUseCase.swift
-//  runner
+//  GreenShot
 //
 //  Use case for managing hole progression and navigation
 //

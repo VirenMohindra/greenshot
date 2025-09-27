@@ -1,6 +1,6 @@
 //
 //  PhysicsService.swift
-//  runner
+//  GreenShot
 //
 //  Domain service for golf ball physics calculations and rules
 //

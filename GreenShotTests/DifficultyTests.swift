@@ -1,6 +1,6 @@
 //
 //  DifficultyTests.swift
-//  runnerTests
+//  GreenShotTests
 //
 //  Unit tests for Difficulty value object
 //
