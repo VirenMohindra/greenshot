@@ -11,14 +11,14 @@ import Foundation
 
 struct HoleGenerationServiceTests {
 
-    let holeGenerationService = HoleGenerationService()
+    let holeGenerationService = HoleGenerationService(scoringService: ScoringService())
 
     @Test("Hole generation creates valid hole structure")
     func testGenerateHole() async throws {
         let holeNumber = 1
         let difficulty = Difficulty(0.5) // Medium difficulty
 
-        let hole = holeGenerationService.generateHole(holeNumber: holeNumber, difficulty: difficulty)
+        let hole = holeGenerationService.generateHole(number: holeNumber, difficulty: difficulty, worldSize: CGSize(width: 800, height: 1600))
 
         // Basic structure validation
         #expect(hole.number == holeNumber, "Hole number should match input")
@@ -42,8 +42,8 @@ struct HoleGenerationServiceTests {
         let easyDifficulty = Difficulty(0.2)
         let hardDifficulty = Difficulty(0.8)
 
-        let easyHole = holeGenerationService.generateHole(holeNumber: 1, difficulty: easyDifficulty)
-        let hardHole = holeGenerationService.generateHole(holeNumber: 1, difficulty: hardDifficulty)
+        let easyHole = holeGenerationService.generateHole(number: 1, difficulty: easyDifficulty, worldSize: CGSize(width: 800, height: 1600))
+        let hardHole = holeGenerationService.generateHole(number: 1, difficulty: hardDifficulty, worldSize: CGSize(width: 800, height: 1600))
 
         // Hard holes should generally have more obstacles
         #expect(hardHole.obstacles.count >= easyHole.obstacles.count,
@@ -58,9 +58,9 @@ struct HoleGenerationServiceTests {
     @Test("Course generation creates multiple unique holes")
     func testGenerateCourse() async throws {
         let numberOfHoles = 9
-        let difficulty = Difficulty(0.5)
+        let _ = Difficulty(0.5)
 
-        let course = holeGenerationService.generateCourse(numberOfHoles: numberOfHoles, difficulty: difficulty)
+        let course = holeGenerationService.generateCourse(holeCount: numberOfHoles, name: "Test Course", worldSize: CGSize(width: 800, height: 1600))
 
         // Basic course validation
         #expect(course.holes.count == numberOfHoles, "Course should have correct number of holes")
@@ -80,7 +80,7 @@ struct HoleGenerationServiceTests {
 
     @Test("Hole generation creates valid fairway paths")
     func testFairwayPathGeneration() async throws {
-        let hole = holeGenerationService.generateHole(holeNumber: 1, difficulty: Difficulty(0.5))
+        let hole = holeGenerationService.generateHole(number: 1, difficulty: Difficulty(0.5), worldSize: CGSize(width: 800, height: 1600))
 
         #expect(hole.fairwayPath != nil, "Hole should have a fairway path")
 
@@ -95,7 +95,7 @@ struct HoleGenerationServiceTests {
 
     @Test("Obstacle generation creates valid obstacles")
     func testObstacleGeneration() async throws {
-        let hole = holeGenerationService.generateHole(holeNumber: 1, difficulty: Difficulty(0.7))
+        let hole = holeGenerationService.generateHole(number: 1, difficulty: Difficulty(0.7), worldSize: CGSize(width: 800, height: 1600))
 
         for obstacle in hole.obstacles {
             // Basic obstacle validation
@@ -121,8 +121,8 @@ struct HoleGenerationServiceTests {
     @Test("Hole generation maintains consistent seeding")
     func testConsistentGeneration() async throws {
         // Generate same hole twice with deterministic seeding
-        let hole1 = holeGenerationService.generateHole(holeNumber: 1, difficulty: Difficulty(0.5))
-        let hole2 = holeGenerationService.generateHole(holeNumber: 1, difficulty: Difficulty(0.5))
+        let hole1 = holeGenerationService.generateHole(number: 1, difficulty: Difficulty(0.5), worldSize: CGSize(width: 800, height: 1600))
+        let hole2 = holeGenerationService.generateHole(number: 1, difficulty: Difficulty(0.5), worldSize: CGSize(width: 800, height: 1600))
 
         // With seeded generation, holes should be identical
         #expect(hole1.par == hole2.par, "Par should be consistent with same seed")
@@ -133,26 +133,26 @@ struct HoleGenerationServiceTests {
     @Test("Par calculation matches distance ranges")
     func testParCalculationLogic() async throws {
         // Test various distances to ensure par calculation is correct
-        let shortHole = holeGenerationService.generateHole(holeNumber: 1, difficulty: Difficulty(0.3))
-        let mediumHole = holeGenerationService.generateHole(holeNumber: 2, difficulty: Difficulty(0.5))
-        let longHole = holeGenerationService.generateHole(holeNumber: 3, difficulty: Difficulty(0.7))
+        let shortHole = holeGenerationService.generateHole(number: 1, difficulty: Difficulty(0.3), worldSize: CGSize(width: 800, height: 1600))
+        let mediumHole = holeGenerationService.generateHole(number: 2, difficulty: Difficulty(0.5), worldSize: CGSize(width: 800, height: 1600))
+        let longHole = holeGenerationService.generateHole(number: 3, difficulty: Difficulty(0.7), worldSize: CGSize(width: 800, height: 1600))
 
         // Validate par ranges based on typical golf course standards
         let allHoles = [shortHole, mediumHole, longHole]
         for hole in allHoles {
             switch hole.par {
             case 3:
-                #expect(hole.distance <= Constants.Course.Distances.par4Min,
+                #expect(hole.distance <= CGFloat(Constants.Course.Distances.par4Min),
                         "Par 3 holes should be shorter than par 4 minimum")
             case 4:
-                #expect(hole.distance >= Constants.Course.Distances.par4Min &&
-                       hole.distance <= Constants.Course.Distances.par5Min,
+                #expect(hole.distance >= CGFloat(Constants.Course.Distances.par4Min) &&
+                       hole.distance <= CGFloat(Constants.Course.Distances.par5Min),
                         "Par 4 holes should be in correct distance range")
             case 5:
-                #expect(hole.distance >= Constants.Course.Distances.par5Min,
+                #expect(hole.distance >= CGFloat(Constants.Course.Distances.par5Min),
                         "Par 5 holes should be longer than par 5 minimum")
             default:
-                #expect(false, "Invalid par value: \(hole.par)")
+                #expect(Bool(false), "Invalid par value: \(hole.par)")
             }
         }
     }
@@ -160,12 +160,12 @@ struct HoleGenerationServiceTests {
     @Test("Course generation handles edge cases")
     func testCourseGenerationEdgeCases() async throws {
         // Test minimum course
-        let singleHoleCourse = holeGenerationService.generateCourse(numberOfHoles: 1, difficulty: Difficulty(0.5))
+        let singleHoleCourse = holeGenerationService.generateCourse(holeCount: 1, name: "Single Hole Course", worldSize: CGSize(width: 800, height: 1600))
         #expect(singleHoleCourse.holes.count == 1, "Single hole course should work")
 
         // Test with extreme difficulties
-        let veryEasyCourse = holeGenerationService.generateCourse(numberOfHoles: 3, difficulty: Difficulty(0.0))
-        let veryHardCourse = holeGenerationService.generateCourse(numberOfHoles: 3, difficulty: Difficulty(1.0))
+        let veryEasyCourse = holeGenerationService.generateCourse(holeCount: 3, name: "Very Easy Course", worldSize: CGSize(width: 800, height: 1600))
+        let veryHardCourse = holeGenerationService.generateCourse(holeCount: 3, name: "Very Hard Course", worldSize: CGSize(width: 800, height: 1600))
 
         #expect(veryEasyCourse.holes.count == 3, "Very easy course should generate correctly")
         #expect(veryHardCourse.holes.count == 3, "Very hard course should generate correctly")

@@ -72,35 +72,42 @@ struct ScoringServiceTests {
         let bogeyLevel = scoringService.getCelebrationLevel(bogeyScore)
 
         // Eagle should have highest celebration
-        #expect(eagleLevel.rawValue > birdieLevel.rawValue, "Eagle should have higher celebration than Birdie")
-        #expect(birdieLevel.rawValue > parLevel.rawValue, "Birdie should have higher celebration than Par")
-        #expect(parLevel.rawValue > bogeyLevel.rawValue, "Par should have higher celebration than Bogey")
+        #expect(eagleLevel == .major, "Eagle should have major celebration")
+        #expect(birdieLevel == .moderate, "Birdie should have moderate celebration")
+        #expect(parLevel == .minor, "Par should have minor celebration")
+        #expect(bogeyLevel == .none, "Bogey should have no celebration")
     }
 
-    @Test("Scoring service calculates total scores correctly")
-    func testCalculateTotalScore() async throws {
-        let scores = [
-            Score(strokes: 4, par: 4), // Par
-            Score(strokes: 3, par: 4), // Birdie (-1)
-            Score(strokes: 5, par: 4)  // Bogey (+1)
-        ]
+    @Test("Scoring service calculates par correctly with difficulty modifiers")
+    func testCalculateParForDistanceWithDifficulty() async throws {
+        // Test par 3 distance
+        let par3 = scoringService.calculateParForDistance(200, difficulty: TestFixtures.easyDifficulty)
+        #expect(par3 == 3, "200 yards should be par 3")
 
-        let totalScore = scoringService.calculateTotalScore(scores)
-        #expect(totalScore.totalStrokes == 12, "Total strokes should be 12")
-        #expect(totalScore.totalPar == 12, "Total par should be 12")
-        #expect(totalScore.scoreToPar == 0, "Score should be even (0)")
+        // Test par 4 distance
+        let par4 = scoringService.calculateParForDistance(350, difficulty: TestFixtures.mediumDifficulty)
+        #expect(par4 == 4, "350 yards should be par 4")
+
+        // Test par 5 distance
+        let par5 = scoringService.calculateParForDistance(500, difficulty: TestFixtures.hardDifficulty)
+        #expect(par5 == 5, "500 yards should be par 5")
     }
 
-    @Test("Scoring service validates par values")
-    func testParValidation() async throws {
-        // Valid par values
-        #expect(scoringService.isValidPar(3), "Par 3 should be valid")
-        #expect(scoringService.isValidPar(4), "Par 4 should be valid")
-        #expect(scoringService.isValidPar(5), "Par 5 should be valid")
+    @Test("Scoring service provides score colors")
+    func testScoreColors() async throws {
+        let eagleScore = Score(strokes: 2, par: 4)
+        let birdieScore = Score(strokes: 3, par: 4)
+        let parScore = Score(strokes: 4, par: 4)
+        let bogeyScore = Score(strokes: 5, par: 4)
 
-        // Invalid par values
-        #expect(!scoringService.isValidPar(2), "Par 2 should be invalid")
-        #expect(!scoringService.isValidPar(6), "Par 6 should be invalid")
-        #expect(!scoringService.isValidPar(0), "Par 0 should be invalid")
+        let eagleColor = scoringService.getScoreColor(for: eagleScore)
+        let birdieColor = scoringService.getScoreColor(for: birdieScore)
+        let parColor = scoringService.getScoreColor(for: parScore)
+        let bogeyColor = scoringService.getScoreColor(for: bogeyScore)
+
+        // Colors should be different for different score types
+        #expect(eagleColor != parColor, "Eagle color should differ from par")
+        #expect(birdieColor != parColor, "Birdie color should differ from par")
+        #expect(bogeyColor != parColor, "Bogey color should differ from par")
     }
 }

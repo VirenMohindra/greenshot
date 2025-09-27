@@ -104,7 +104,7 @@ enum ShotAccuracy {
     }
 }
 
-enum ShotResult {
+enum ShotResult: Equatable {
     case inProgress
     case landed
     case holeIn
