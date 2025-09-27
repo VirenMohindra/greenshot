@@ -12,37 +12,37 @@
 			containerPortal = 0C9D65A22E87924300E50155 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 0C9D65A92E87924300E50155;
-			remoteInfo = runner;
+			remoteInfo = GreenShot;
 		};
 		0C9D65C82E87924400E50155 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 0C9D65A22E87924300E50155 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 0C9D65A92E87924300E50155;
-			remoteInfo = runner;
+			remoteInfo = GreenShot;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0C9D65AA2E87924300E50155 /* runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C9D65BD2E87924400E50155 /* runnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = runnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		0C9D65C72E87924400E50155 /* runnerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = runnerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9D65AA2E87924300E50155 /* GreenShot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GreenShot.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9D65BD2E87924400E50155 /* GreenShotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GreenShotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C9D65C72E87924400E50155 /* GreenShotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GreenShotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0C9D65AC2E87924300E50155 /* runner */ = {
+		0C9D65AC2E87924300E50155 /* GreenShot */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = runner;
+			path = GreenShot;
 			sourceTree = "<group>";
 		};
-		0C9D65C02E87924400E50155 /* runnerTests */ = {
+		0C9D65C02E87924400E50155 /* GreenShotTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = runnerTests;
+			path = GreenShotTests;
 			sourceTree = "<group>";
 		};
-		0C9D65CA2E87924400E50155 /* runnerUITests */ = {
+		0C9D65CA2E87924400E50155 /* GreenShotUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = runnerUITests;
+			path = GreenShotUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		0C9D65A12E87924300E50155 = {
 			isa = PBXGroup;
 			children = (
-				0C9D65AC2E87924300E50155 /* runner */,
-				0C9D65C02E87924400E50155 /* runnerTests */,
-				0C9D65CA2E87924400E50155 /* runnerUITests */,
+				0C9D65AC2E87924300E50155 /* GreenShot */,
+				0C9D65C02E87924400E50155 /* GreenShotTests */,
+				0C9D65CA2E87924400E50155 /* GreenShotUITests */,
 				0C9D65AB2E87924300E50155 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		0C9D65AB2E87924300E50155 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				0C9D65AA2E87924300E50155 /* runner.app */,
-				0C9D65BD2E87924400E50155 /* runnerTests.xctest */,
-				0C9D65C72E87924400E50155 /* runnerUITests.xctest */,
+				0C9D65AA2E87924300E50155 /* GreenShot.app */,
+				0C9D65BD2E87924400E50155 /* GreenShotTests.xctest */,
+				0C9D65C72E87924400E50155 /* GreenShotUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		0C9D65A92E87924300E50155 /* runner */ = {
+		0C9D65A92E87924300E50155 /* GreenShot */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9D65D12E87924400E50155 /* Build configuration list for PBXNativeTarget "runner" */;
+			buildConfigurationList = 0C9D65D12E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShot" */;
 			buildPhases = (
 				0C9D65A62E87924300E50155 /* Sources */,
 				0C9D65A72E87924300E50155 /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0C9D65AC2E87924300E50155 /* runner */,
+				0C9D65AC2E87924300E50155 /* GreenShot */,
 			);
-			name = runner;
+			name = GreenShot;
 			packageProductDependencies = (
 			);
 			productName = runner;
-			productReference = 0C9D65AA2E87924300E50155 /* runner.app */;
+			productReference = 0C9D65AA2E87924300E50155 /* GreenShot.app */;
 			productType = "com.apple.product-type.application";
 		};
-		0C9D65BC2E87924400E50155 /* runnerTests */ = {
+		0C9D65BC2E87924400E50155 /* GreenShotTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9D65D42E87924400E50155 /* Build configuration list for PBXNativeTarget "runnerTests" */;
+			buildConfigurationList = 0C9D65D42E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShotTests" */;
 			buildPhases = (
 				0C9D65B92E87924400E50155 /* Sources */,
 				0C9D65BA2E87924400E50155 /* Frameworks */,
@@ -131,18 +131,18 @@
 				0C9D65BF2E87924400E50155 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0C9D65C02E87924400E50155 /* runnerTests */,
+				0C9D65C02E87924400E50155 /* GreenShotTests */,
 			);
-			name = runnerTests;
+			name = GreenShotTests;
 			packageProductDependencies = (
 			);
 			productName = runnerTests;
-			productReference = 0C9D65BD2E87924400E50155 /* runnerTests.xctest */;
+			productReference = 0C9D65BD2E87924400E50155 /* GreenShotTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		0C9D65C62E87924400E50155 /* runnerUITests */ = {
+		0C9D65C62E87924400E50155 /* GreenShotUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 0C9D65D72E87924400E50155 /* Build configuration list for PBXNativeTarget "runnerUITests" */;
+			buildConfigurationList = 0C9D65D72E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShotUITests" */;
 			buildPhases = (
 				0C9D65C32E87924400E50155 /* Sources */,
 				0C9D65C42E87924400E50155 /* Frameworks */,
@@ -154,13 +154,13 @@
 				0C9D65C92E87924400E50155 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0C9D65CA2E87924400E50155 /* runnerUITests */,
+				0C9D65CA2E87924400E50155 /* GreenShotUITests */,
 			);
-			name = runnerUITests;
+			name = GreenShotUITests;
 			packageProductDependencies = (
 			);
 			productName = runnerUITests;
-			productReference = 0C9D65C72E87924400E50155 /* runnerUITests.xctest */;
+			productReference = 0C9D65C72E87924400E50155 /* GreenShotUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				0C9D65A92E87924300E50155 /* runner */,
-				0C9D65BC2E87924400E50155 /* runnerTests */,
-				0C9D65C62E87924400E50155 /* runnerUITests */,
+				0C9D65A92E87924300E50155 /* GreenShot */,
+				0C9D65BC2E87924400E50155 /* GreenShotTests */,
+				0C9D65C62E87924400E50155 /* GreenShotUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		0C9D65BF2E87924400E50155 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C9D65A92E87924300E50155 /* runner */;
+			target = 0C9D65A92E87924300E50155 /* GreenShot */;
 			targetProxy = 0C9D65BE2E87924400E50155 /* PBXContainerItemProxy */;
 		};
 		0C9D65C92E87924400E50155 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0C9D65A92E87924300E50155 /* runner */;
+			target = 0C9D65A92E87924300E50155 /* GreenShot */;
 			targetProxy = 0C9D65C82E87924400E50155 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -388,10 +388,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = runner/runner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GreenShot/GreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"runner/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"GreenShot/Preview Content\"";
 				DEVELOPMENT_TEAM = 7L48TM3JY4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -428,10 +428,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = runner/runner.entitlements;
+				CODE_SIGN_ENTITLEMENTS = GreenShot/GreenShot.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"runner/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"GreenShot/Preview Content\"";
 				DEVELOPMENT_TEAM = 7L48TM3JY4;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -482,7 +482,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/runner";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GreenShot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/runner";
 				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Debug;
@@ -506,7 +506,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/runner";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GreenShot.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/runner";
 				XROS_DEPLOYMENT_TARGET = 2.0;
 			};
 			name = Release;
@@ -569,7 +569,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C9D65D12E87924400E50155 /* Build configuration list for PBXNativeTarget "runner" */ = {
+		0C9D65D12E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C9D65D22E87924400E50155 /* Debug */,
@@ -578,7 +578,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C9D65D42E87924400E50155 /* Build configuration list for PBXNativeTarget "runnerTests" */ = {
+		0C9D65D42E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShotTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C9D65D52E87924400E50155 /* Debug */,
@@ -587,7 +587,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		0C9D65D72E87924400E50155 /* Build configuration list for PBXNativeTarget "runnerUITests" */ = {
+		0C9D65D72E87924400E50155 /* Build configuration list for PBXNativeTarget "GreenShotUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				0C9D65D82E87924400E50155 /* Debug */,

@@ -7,7 +7,7 @@
 
 import Foundation
 import UIKit
-@testable import runner
+@testable import GreenShot
 
 // MARK: - Test Fixtures
 struct TestFixtures {

@@ -9,7 +9,7 @@ import Testing
 import Foundation
 import Combine
 import GameKit
-@testable import runner
+@testable import GreenShot
 
 @MainActor
 struct GameControllerTests {

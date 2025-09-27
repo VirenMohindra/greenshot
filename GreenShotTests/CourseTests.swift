@@ -7,7 +7,7 @@
 
 import Testing
 import Foundation
-@testable import runner
+@testable import GreenShot
 
 struct CourseTests {
 

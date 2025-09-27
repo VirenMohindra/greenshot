@@ -8,7 +8,7 @@
 import Testing
 import Foundation
 import SpriteKit
-@testable import runner
+@testable import GreenShot
 
 struct BallRendererTests {
 
