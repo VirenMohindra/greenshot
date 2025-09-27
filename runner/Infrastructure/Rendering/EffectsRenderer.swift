@@ -102,8 +102,8 @@ class EffectsRenderer: EffectsRendererProtocol {
             sparkle.strokeColor = .yellow
             sparkle.lineWidth = 1
             sparkle.position = CGPoint(
-                x: position.x + (drand48() - 0.5) * 100,
-                y: position.y + (drand48() - 0.5) * 100
+                x: position.x + (Double.random(in: 0...1) - 0.5) * 100,
+                y: position.y + (Double.random(in: 0...1) - 0.5) * 100
             )
             sparkle.zPosition = 55
             scene.addChild(sparkle)
@@ -152,8 +152,8 @@ class EffectsRenderer: EffectsRendererProtocol {
             puff.fillColor = SKColor(red: 0.9, green: 0.8, blue: 0.6, alpha: 0.6)
             puff.strokeColor = .clear
             puff.position = CGPoint(
-                x: position.x + (drand48() - 0.5) * 20,
-                y: position.y + (drand48() - 0.5) * 20
+                x: position.x + (Double.random(in: 0...1) - 0.5) * 20,
+                y: position.y + (Double.random(in: 0...1) - 0.5) * 20
             )
             puff.zPosition = 40
             scene.addChild(puff)

@@ -127,6 +127,5 @@ extension PhysicsService {
         static let defaultLinearDamping: CGFloat = 1.5
         static let defaultAngularDamping: CGFloat = 0.8
         static let maxBallSpeed: CGFloat = 200.0
-        static let stationaryThreshold: CGFloat = 5.0
     }
 }

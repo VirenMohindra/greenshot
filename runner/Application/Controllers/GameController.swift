@@ -16,6 +16,10 @@ class GameController: ObservableObject {
     @Published private(set) var golfBall: GolfBall?
     @Published private(set) var currentStrokes: Int = 0
 
+    // Celebration tracking
+    @Published private(set) var lastCompletedScore: Score?
+    @Published private(set) var lastCelebrationLevel: CelebrationLevel = .none
+
     // MARK: - Use Cases
     private let takeShotUseCase: TakeShotUseCaseProtocol
     private let completeHoleUseCase: CompleteHoleUseCaseProtocol
@@ -27,6 +31,7 @@ class GameController: ObservableObject {
 
     // MARK: - Game State
     private let courseWorldSize = CGSize(width: 800, height: 1600)
+    private var isCurrentHoleCompleted = false
 
     init(
         takeShotUseCase: TakeShotUseCaseProtocol,
@@ -163,7 +168,8 @@ extension GameController {
 extension GameController {
     func checkForHoleCompletion(ballPosition: Position, ballVelocity: Velocity) {
         guard let hole = currentCourse?.currentHole,
-              let player = currentPlayer else { return }
+              let player = currentPlayer,
+              !isCurrentHoleCompleted else { return }
 
         let isCompleted = completeHoleUseCase.checkHoleCompletion(
             ballPosition: ballPosition,
@@ -172,6 +178,7 @@ extension GameController {
         )
 
         if isCompleted {
+            isCurrentHoleCompleted = true
             completeCurrentHole()
         }
     }
@@ -187,6 +194,10 @@ extension GameController {
         )
 
         print("⛳ Hole completed! Score: \(result.score.displayText)")
+
+        // Publish celebration data for UI
+        lastCompletedScore = result.score
+        lastCelebrationLevel = result.celebrationLevel
 
         // Handle celebrations and achievements
         if result.celebrationLevel.shouldShowMessage {
@@ -230,13 +241,21 @@ extension GameController {
         // Reset stroke count
         currentStrokes = 0
 
+        // Reset hole completion flag
+        isCurrentHoleCompleted = false
+
         // Position ball at tee
         golfBall = GolfBall(position: hole.teePosition)
 
         print("🏌️ Starting hole \(hole.number) - Par \(hole.par)")
 
-        // Notify scene of game state change (defer to avoid SwiftUI state modification warning)
+        // Trigger @Published update for course changes (hole progression)
         DispatchQueue.main.async {
+            // Force @Published currentCourse to update by re-assigning it
+            let course = self.currentCourse
+            self.currentCourse = course
+
+            // Notify scene of game state change
             NotificationCenter.default.post(name: NSNotification.Name("GameStateChanged"), object: nil)
         }
     }

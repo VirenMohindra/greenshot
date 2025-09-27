@@ -7,25 +7,44 @@
 
 import Foundation
 import CoreGraphics
+import GameplayKit
 
 protocol HoleGenerationServiceProtocol {
     func generateHole(number: Int, difficulty: Difficulty, worldSize: CGSize) -> Hole
     func generateCourse(holeCount: Int, name: String, worldSize: CGSize) -> Course
+    func setSeed(_ seed: UInt64)
 }
 
 class HoleGenerationService: HoleGenerationServiceProtocol {
     private let scoringService: ScoringServiceProtocol
-    private let randomSeed: UInt64
+    private var randomSource: GKRandomSource
 
     init(scoringService: ScoringServiceProtocol, seed: UInt64? = nil) {
         self.scoringService = scoringService
-        self.randomSeed = seed ?? UInt64(Date().timeIntervalSince1970)
+        if let seed = seed {
+            self.randomSource = GKMersenneTwisterRandomSource(seed: seed)
+        } else {
+            self.randomSource = GKRandomSource()
+        }
+    }
+
+    func setSeed(_ seed: UInt64) {
+        self.randomSource = GKMersenneTwisterRandomSource(seed: seed)
+    }
+
+    // MARK: - Private Random Helpers
+    private func randomDouble() -> Double {
+        return Double(randomSource.nextUniform())
+    }
+
+    private func randomDouble(in range: ClosedRange<Double>) -> Double {
+        let random = Double(randomSource.nextUniform())
+        return range.lowerBound + (random * (range.upperBound - range.lowerBound))
     }
 
     // MARK: - Hole Generation
     func generateHole(number: Int, difficulty: Difficulty, worldSize: CGSize) -> Hole {
-        // Set deterministic random seed for consistent generation
-        srand48(Int(randomSeed + UInt64(number)))
+        // Use seeded random source for consistent generation
 
         let teePosition = generateTeePosition(worldSize: worldSize)
         let pinPosition = generatePinPosition(difficulty: difficulty, worldSize: worldSize)
@@ -88,8 +107,8 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     private func generateTeePosition(worldSize: CGSize) -> Position {
         // Tee always at bottom center with slight variation
         Position(
-            x: worldSize.width * 0.5 + (drand48() - 0.5) * worldSize.width * 0.1,
-            y: worldSize.height * 0.1 + drand48() * worldSize.height * 0.05
+            x: worldSize.width * 0.5 + (randomDouble() - 0.5) * worldSize.width * 0.1,
+            y: worldSize.height * 0.1 + randomDouble() * worldSize.height * 0.05
         )
     }
 
@@ -100,14 +119,14 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
 
         // Distance based on par that will be calculated
         let baseDistance: Double
-        let randomFactor = drand48()
+        let randomFactor = randomDouble()
 
         if randomFactor < 0.3 { // 30% Par 3 holes
-            baseDistance = 100 + drand48() * 150 // 100-250 yards
+            baseDistance = randomDouble(in: Double(Constants.Course.Distances.par3Min)...Double(Constants.Course.Distances.par3Max))
         } else if randomFactor < 0.8 { // 50% Par 4 holes
-            baseDistance = 250 + drand48() * 200 // 250-450 yards
+            baseDistance = randomDouble(in: Double(Constants.Course.Distances.par4Min)...Double(Constants.Course.Distances.par4Max))
         } else { // 20% Par 5 holes
-            baseDistance = 450 + drand48() * 100 // 450-550 yards
+            baseDistance = randomDouble(in: Double(Constants.Course.Distances.par5Min)...Double(Constants.Course.Distances.par5Max))
         }
 
         // Add difficulty variation
@@ -117,7 +136,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
         // Random angle from tee with much more variation
         let baseAngle = Double.pi / 2 // Straight up
         let maxAngleVariation = Double.pi / 3 // Up to 60 degrees left or right
-        let angle = baseAngle + (drand48() - 0.5) * maxAngleVariation
+        let angle = baseAngle + (randomDouble() - 0.5) * maxAngleVariation
 
         // Calculate position based on distance and angle from tee center
         let teeCenter = Position(x: worldSize.width * 0.5, y: worldSize.height * 0.1)
@@ -162,7 +181,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     }
 
     private func determineHoleType(distance: CGFloat, difficulty: Difficulty) -> HoleType {
-        let random = drand48()
+        let random = randomDouble()
 
         // Short holes are usually straight
         if distance < 200 {
@@ -206,7 +225,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     private func createDoglegFairway(from start: Position, to end: Position, width: CGFloat, bendDirection: Double, path: CGMutablePath) -> CGPath {
         // Create smooth curved fairway for dogleg
         let distance = start.distance(to: end)
-        let bendDistance = distance * (0.5 + drand48() * 0.2) // Bend around middle
+        let bendDistance = distance * (0.5 + randomDouble() * 0.2) // Bend around middle
 
         // Calculate control points for smooth curve
         let initialDirection = start.direction(to: end)
@@ -226,7 +245,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
         let baseDirection = start.direction(to: end)
 
         // Create two control points for S-curve
-        let bend1 = (drand48() - 0.5) * 0.6 * 80 // Bend strength
+        let bend1 = (randomDouble() - 0.5) * 0.6 * 80 // Bend strength
         let bend2 = -bend1 // Opposite bend
 
         let control1 = Position(
@@ -381,7 +400,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
         var obstacles: [Obstacle] = []
 
         // Generate water hazards
-        let waterCount = difficulty.waterHazardChance > Float(drand48()) ? 1 : 0
+        let waterCount = difficulty.waterHazardChance > Float(randomDouble()) ? 1 : 0
         for _ in 0..<waterCount {
             if let position = generateObstaclePosition(
                 avoiding: fairwayPath,
@@ -392,26 +411,20 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
                 obstacles.append(Obstacle(
                     type: .water,
                     position: position,
-                    size: CGSize(width: 60 + drand48() * 40, height: 40 + drand48() * 20)
+                    size: CGSize(width: 60 + randomDouble() * 40, height: 40 + randomDouble() * 20)
                 ))
             }
         }
 
-        // Generate bunkers
-        for _ in 0..<difficulty.bunkerCount {
-            if let position = generateObstaclePosition(
-                avoiding: fairwayPath,
-                teePosition: teePosition,
-                pinPosition: pinPosition,
-                worldSize: worldSize
-            ) {
-                obstacles.append(Obstacle(
-                    type: .bunker,
-                    position: position,
-                    size: CGSize(width: 30 + drand48() * 20, height: 20 + drand48() * 15)
-                ))
-            }
-        }
+        // Generate strategic bunkers
+        let bunkers = generateStrategicBunkers(
+            teePosition: teePosition,
+            pinPosition: pinPosition,
+            fairwayPath: fairwayPath,
+            difficulty: difficulty,
+            worldSize: worldSize
+        )
+        obstacles.append(contentsOf: bunkers)
 
         // Generate strategic trees - many more and better placed!
         let totalTrees = difficulty.treeCount
@@ -446,7 +459,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
 
             if let treePosition = position {
                 // Varied tree sizes for realism
-                let treeSize = 12 + drand48() * 16 // 12-28 size trees
+                let treeSize = 12 + randomDouble() * 16 // 12-28 size trees
                 obstacles.append(Obstacle(
                     type: .tree,
                     position: treePosition,
@@ -466,8 +479,8 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
         maxAttempts: Int = 20
     ) -> Position? {
         for _ in 0..<maxAttempts {
-            let x = drand48() * worldSize.width
-            let y = teePosition.y + drand48() * (pinPosition.y - teePosition.y)
+            let x = randomDouble() * worldSize.width
+            let y = teePosition.y + randomDouble() * (pinPosition.y - teePosition.y)
             let position = Position(x: x, y: y)
 
             // Check if position is valid (not too close to fairway or important areas)
@@ -479,7 +492,7 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
 
         // Fallback position
         return Position(
-            x: worldSize.width * 0.2 + drand48() * worldSize.width * 0.6,
+            x: worldSize.width * 0.2 + randomDouble() * worldSize.width * 0.6,
             y: teePosition.y + 0.3 * (pinPosition.y - teePosition.y)
         )
     }
@@ -500,8 +513,8 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     ) -> Position? {
         for _ in 0..<maxAttempts {
             // Place trees around tee area but not blocking the immediate shot
-            let angle = drand48() * 2 * Double.pi
-            let distance = 60 + drand48() * 80 // 60-140 points from tee
+            let angle = randomDouble() * 2 * Double.pi
+            let distance = 60 + randomDouble() * 80 // 60-140 points from tee
             let position = Position(
                 x: teePosition.x + cos(angle) * distance,
                 y: teePosition.y + sin(angle) * distance
@@ -526,15 +539,15 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     ) -> Position? {
         for _ in 0..<maxAttempts {
             // Pick a point along the fairway line
-            let fairwayProgress = 0.2 + drand48() * 0.6 // 20%-80% along fairway
+            let fairwayProgress = 0.2 + randomDouble() * 0.6 // 20%-80% along fairway
             let fairwayPoint = Position(
                 x: teePosition.x + (pinPosition.x - teePosition.x) * fairwayProgress,
                 y: teePosition.y + (pinPosition.y - teePosition.y) * fairwayProgress
             )
 
             // Place tree to the side of the fairway
-            let sideDistance = 40 + drand48() * 60 // 40-100 points from fairway center
-            let sideAngle = (drand48() < 0.5 ? -1 : 1) * (Double.pi/2) // Left or right of fairway
+            let sideDistance = 40 + randomDouble() * 60 // 40-100 points from fairway center
+            let sideAngle = (randomDouble() < 0.5 ? -1 : 1) * (Double.pi/2) // Left or right of fairway
             let fairwayDirection = teePosition.direction(to: pinPosition)
 
             let treePosition = Position(
@@ -560,8 +573,8 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
     ) -> Position? {
         for _ in 0..<maxAttempts {
             // Place trees around green area
-            let angle = drand48() * 2 * Double.pi
-            let distance = 50 + drand48() * 70 // 50-120 points from pin
+            let angle = randomDouble() * 2 * Double.pi
+            let distance = 50 + randomDouble() * 70 // 50-120 points from pin
             let position = Position(
                 x: pinPosition.x + cos(angle) * distance,
                 y: pinPosition.y + sin(angle) * distance
@@ -577,5 +590,157 @@ class HoleGenerationService: HoleGenerationServiceProtocol {
             }
         }
         return nil
+    }
+
+    // MARK: - Strategic Bunker Generation
+    private func generateStrategicBunkers(
+        teePosition: Position,
+        pinPosition: Position,
+        fairwayPath: CGPath,
+        difficulty: Difficulty,
+        worldSize: CGSize
+    ) -> [Obstacle] {
+        var bunkers: [Obstacle] = []
+
+        // 1. Generate green-side bunkers (most important)
+        let greenSideBunkers = generateGreenSideBunkers(
+            pinPosition: pinPosition,
+            difficulty: difficulty,
+            worldSize: worldSize
+        )
+        bunkers.append(contentsOf: greenSideBunkers)
+
+        // 2. Generate fairway bunkers for longer holes
+        let distance = teePosition.distance(to: pinPosition)
+        if distance > Constants.Course.Obstacles.fairwayBunkerMinDistance {
+            let fairwayBunkers = generateFairwayBunkers(
+                teePosition: teePosition,
+                pinPosition: pinPosition,
+                fairwayPath: fairwayPath,
+                difficulty: difficulty,
+                worldSize: worldSize
+            )
+            bunkers.append(contentsOf: fairwayBunkers)
+        }
+
+        return bunkers
+    }
+
+    private func generateGreenSideBunkers(
+        pinPosition: Position,
+        difficulty: Difficulty,
+        worldSize: CGSize
+    ) -> [Obstacle] {
+        var bunkers: [Obstacle] = []
+
+        // Calculate number of green-side bunkers based on difficulty
+        let bunkerCount = min(Int(difficulty.level * 3) + 1, 4) // 1 to 4 bunkers
+
+        // Strategic positions around the green
+        let positions: [CGFloat] = [
+            .pi * 0.25,     // Front-right
+            .pi * 0.75,     // Front-left
+            .pi * 1.25,     // Back-left
+            .pi * 1.75      // Back-right
+        ]
+
+        for i in 0..<bunkerCount {
+            let angle = positions[i % positions.count]
+            let distance = Constants.Course.Obstacles.greenSideBunkerDistance + randomDouble() * 20
+
+            let position = Position(
+                x: pinPosition.x + cos(angle) * distance,
+                y: pinPosition.y + sin(angle) * distance
+            )
+
+            // Ensure bunker is within bounds
+            if position.x > 30 && position.x < worldSize.width - 30 &&
+               position.y > 30 && position.y < worldSize.height - 30 {
+
+                bunkers.append(Obstacle(
+                    type: .bunker,
+                    position: position,
+                    size: generateBunkerSize(type: .greenSide)
+                ))
+            }
+        }
+
+        return bunkers
+    }
+
+    private func generateFairwayBunkers(
+        teePosition: Position,
+        pinPosition: Position,
+        fairwayPath: CGPath,
+        difficulty: Difficulty,
+        worldSize: CGSize
+    ) -> [Obstacle] {
+        var bunkers: [Obstacle] = []
+
+        // Generate 1-2 fairway bunkers based on difficulty
+        let bunkerCount = difficulty.level > 0.5 ? 2 : 1
+
+        for _ in 0..<bunkerCount {
+            // Place bunkers at strategic distances from tee (landing zones)
+            let minDistance = Constants.Course.Obstacles.fairwayBunkerMinDistance
+            let maxDistance = Constants.Course.Obstacles.fairwayBunkerMaxDistance
+            let targetDistance = minDistance + randomDouble() * (maxDistance - minDistance)
+
+            // Calculate direction toward pin with some lateral offset
+            let direction = atan2(pinPosition.y - teePosition.y, pinPosition.x - teePosition.x)
+            let lateralOffset = (randomDouble() - 0.5) * .pi * 0.3 // ±30 degrees
+
+            let position = Position(
+                x: teePosition.x + cos(direction + lateralOffset) * targetDistance,
+                y: teePosition.y + sin(direction + lateralOffset) * targetDistance
+            )
+
+            // Place bunker to the side of the fairway, not in it
+            if !fairwayPath.contains(position.cgPoint) &&
+               position.x > 30 && position.x < worldSize.width - 30 &&
+               position.y > 30 && position.y < worldSize.height - 30 {
+
+                bunkers.append(Obstacle(
+                    type: .bunker,
+                    position: position,
+                    size: generateBunkerSize(type: .fairway)
+                ))
+            }
+        }
+
+        return bunkers
+    }
+
+    private func generateBunkerSize(type: BunkerType) -> CGSize {
+        let minWidth: CGFloat
+        let maxWidth: CGFloat
+        let minHeight: CGFloat
+        let maxHeight: CGFloat
+
+        switch type {
+        case .greenSide:
+            // Green-side bunkers are typically larger and more visible
+            minWidth = Constants.Course.Obstacles.bunkerMinWidth
+            maxWidth = Constants.Course.Obstacles.bunkerMaxWidth
+            minHeight = Constants.Course.Obstacles.bunkerMinHeight
+            maxHeight = Constants.Course.Obstacles.bunkerMaxHeight
+
+        case .fairway:
+            // Fairway bunkers can be smaller and more elongated
+            minWidth = Constants.Course.Obstacles.bunkerMinWidth * 0.8
+            maxWidth = Constants.Course.Obstacles.bunkerMaxWidth * 0.8
+            minHeight = Constants.Course.Obstacles.bunkerMinHeight * 0.7
+            maxHeight = Constants.Course.Obstacles.bunkerMaxHeight * 0.7
+        }
+
+        return CGSize(
+            width: minWidth + randomDouble() * (maxWidth - minWidth),
+            height: minHeight + randomDouble() * (maxHeight - minHeight)
+        )
+    }
+
+    private enum BunkerType {
+        case greenSide
+        case fairway
     }
 }

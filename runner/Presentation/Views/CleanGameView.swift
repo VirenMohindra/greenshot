@@ -11,6 +11,7 @@ import SpriteKit
 struct CleanGameView: View {
     @StateObject private var viewModel: GameViewModel
     @State private var gameScene: CleanGameScene?
+    @State private var showCourseOverview = false
 
     // Shared dependency container
     private let container: DependencyContainer
@@ -59,7 +60,7 @@ struct CleanGameView: View {
                 )
 
             // UI Overlay
-            GameControlsView(viewModel: viewModel)
+            GameControlsView(viewModel: viewModel, showCourseOverview: $showCourseOverview)
         }
         .sheet(isPresented: $viewModel.showSettings) {
             SettingsView()
@@ -70,6 +71,18 @@ struct CleanGameView: View {
         .sheet(isPresented: $viewModel.showHoleDebug) {
             if let course = viewModel.currentCourse {
                 HoleDebugView(course: course)
+            } else {
+                Text("No course generated yet")
+                    .padding()
+            }
+        }
+        .sheet(isPresented: $showCourseOverview) {
+            if let course = viewModel.currentCourse {
+                CourseOverviewView(
+                    holes: course.holes,
+                    currentHoleIndex: viewModel.currentHoleIndex,
+                    isPresented: $showCourseOverview
+                )
             } else {
                 Text("No course generated yet")
                     .padding()

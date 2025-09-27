@@ -59,7 +59,7 @@ extension CollisionHandler: SKPhysicsContactDelegate {
 
         // Check if ball is moving slowly enough to go in
         let speed = ball.velocity.magnitude
-        if speed < 100 {
+        if speed < Constants.Ball.stationaryThreshold {
             delegate?.collisionHandler(self, ballEnteredHole: ball, at: ball.position)
         }
     }

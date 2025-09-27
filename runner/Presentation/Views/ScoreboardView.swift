@@ -12,40 +12,60 @@ struct ScoreboardView: View {
     let par: Int
     let strokes: Int
     let score: Score?
+    let totalScore: Int
+    let roundProgress: String
 
     var body: some View {
-        HStack(spacing: 0) {
-            // Hole Section
-            ScoreboardSection(title: "HOLE", value: "\(hole)", color: .white)
+        VStack(spacing: 8) {
+            // Round Progress
+            Text(roundProgress)
+                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.8))
 
-            Divider()
-                .frame(height: 40)
-                .background(Color.white.opacity(0.3))
+            HStack(spacing: 0) {
+                // Hole Section
+                ScoreboardSection(title: "HOLE", value: "\(hole)", color: .white)
 
-            // Par Section
-            ScoreboardSection(title: "PAR", value: "\(par)", color: .yellow)
+                Divider()
+                    .frame(height: 40)
+                    .background(Color.white.opacity(0.3))
 
-            Divider()
-                .frame(height: 40)
-                .background(Color.white.opacity(0.3))
+                // Par Section
+                ScoreboardSection(title: "PAR", value: "\(par)", color: .yellow)
 
-            // Strokes Section
-            ScoreboardSection(
-                title: "STROKE",
-                value: "\(strokes)",
-                color: strokeColor
-            )
+                Divider()
+                    .frame(height: 40)
+                    .background(Color.white.opacity(0.3))
 
-            Divider()
-                .frame(height: 40)
-                .background(Color.white.opacity(0.3))
+                // Strokes Section
+                ScoreboardSection(
+                    title: "STROKE",
+                    value: "\(strokes)",
+                    color: strokeColor
+                )
 
-            // Score Section
-            ScoreboardSection(
-                title: "SCORE",
-                value: scoreDisplay,
-                color: scoreColor
-            )
+                Divider()
+                    .frame(height: 40)
+                    .background(Color.white.opacity(0.3))
+
+                // Current Hole Score Section
+                ScoreboardSection(
+                    title: "SCORE",
+                    value: scoreDisplay,
+                    color: scoreColor
+                )
+
+                Divider()
+                    .frame(height: 40)
+                    .background(Color.white.opacity(0.3))
+
+                // Total Score Section
+                ScoreboardSection(
+                    title: "TOTAL",
+                    value: totalScoreDisplay,
+                    color: totalScoreColor
+                )
+            }
         }
         .padding()
         .background(
@@ -72,7 +92,10 @@ struct ScoreboardView: View {
     }
 
     private var scoreDisplay: String {
-        guard let score = score else { return "-" }
+        if strokes == 0 {
+            return "E"  // Even/starting score before any shots
+        }
+        guard let score = score else { return "\(strokes)" }
         return score.displayText
     }
 
@@ -85,6 +108,28 @@ struct ScoreboardView: View {
         case .average: return .white
         case .poor: return .yellow
         case .terrible: return Color(red: 1.0, green: 0.4, blue: 0.4)
+        }
+    }
+
+    private var totalScoreDisplay: String {
+        if totalScore == 0 {
+            return "E"  // Even par
+        } else if totalScore > 0 {
+            return "+\(totalScore)"  // Over par
+        } else {
+            return "\(totalScore)"  // Under par (already has negative sign)
+        }
+    }
+
+    private var totalScoreColor: Color {
+        if totalScore < 0 {
+            return .green  // Under par (good)
+        } else if totalScore == 0 {
+            return .white  // Even par
+        } else if totalScore <= 5 {
+            return .yellow  // Slightly over par
+        } else {
+            return .red  // Well over par
         }
     }
 }
@@ -115,21 +160,27 @@ struct ScoreboardSection: View {
             hole: 1,
             par: 4,
             strokes: 3,
-            score: Score(strokes: 3, par: 4)
+            score: Score(strokes: 3, par: 4),
+            totalScore: -1,
+            roundProgress: "1/9 Holes"
         )
 
         ScoreboardView(
             hole: 2,
             par: 3,
             strokes: 2,
-            score: Score(strokes: 2, par: 3)
+            score: Score(strokes: 2, par: 3),
+            totalScore: -2,
+            roundProgress: "2/9 Holes"
         )
 
         ScoreboardView(
             hole: 3,
             par: 5,
             strokes: 6,
-            score: Score(strokes: 6, par: 5)
+            score: Score(strokes: 6, par: 5),
+            totalScore: -1,
+            roundProgress: "3/9 Holes"
         )
     }
     .padding()

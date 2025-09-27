@@ -38,7 +38,7 @@ extension Velocity {
     }
 
     var isStationary: Bool {
-        magnitude < 5.0 // Golf ball is considered stationary below this threshold
+        magnitude < Constants.Ball.stationaryThreshold
     }
 }
 
@@ -74,5 +74,4 @@ extension Velocity {
 // MARK: - Golf Physics Constants
 extension Velocity {
     static let maxGolfBallSpeed: CGFloat = 200.0
-    static let stationaryThreshold: CGFloat = 5.0
 }

@@ -7,6 +7,7 @@
 
 import SpriteKit
 import SwiftUI
+import ObjectiveC
 
 class CleanGameScene: SKScene {
     // MARK: - Dependencies
@@ -170,8 +171,10 @@ extension CleanGameScene {
     }
 
     private func setupHolePin(at position: Position) {
-        // Remove existing pin
+        // Remove existing hole elements
         childNode(withName: "pin")?.removeFromParent()
+        childNode(withName: "holeVisual")?.removeFromParent()
+        children.filter { $0.name == "holeRim" }.forEach { $0.removeFromParent() }
 
         // Create hole first (at actual hole position, not offset)
         let hole = SKShapeNode(circleOfRadius: 15)
@@ -190,6 +193,7 @@ extension CleanGameScene {
         rim.lineWidth = 1
         rim.position = hole.position
         rim.zPosition = 1.1
+        rim.name = "holeRim"
         addChild(rim)
 
         // Create pin container (offset for visual appeal)
@@ -294,6 +298,11 @@ extension CleanGameScene {
 
 // MARK: - Update Loop
 extension CleanGameScene {
+    private var ballTrailPositions: [Position] {
+        get { objc_getAssociatedObject(self, &ballTrailKey) as? [Position] ?? [] }
+        set { objc_setAssociatedObject(self, &ballTrailKey, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC) }
+    }
+
     override func update(_ currentTime: TimeInterval) {
         guard let ball = dependencies.gameController.golfBall else { return }
 
@@ -304,6 +313,23 @@ extension CleanGameScene {
 
             let newPosition = Position(ballNode!.position)
             ball.updatePosition(newPosition)
+
+            // Track ball movement for trail when ball is moving
+            if !newVelocity.isStationary {
+                ballTrailPositions.append(newPosition)
+
+                // Keep only last 30 positions for performance
+                if ballTrailPositions.count > 30 {
+                    ballTrailPositions.removeFirst()
+                }
+
+                // Create trail visualization
+                dependencies.ballRenderer.createBallTrail(from: ballTrailPositions, in: self)
+            } else if ballTrailPositions.count > 0 {
+                // Clear trail when ball stops
+                ballTrailPositions.removeAll()
+                dependencies.ballRenderer.clearBallTrail(from: self)
+            }
         }
 
         // Update camera following
@@ -322,6 +348,9 @@ extension CleanGameScene {
         )
     }
 }
+
+// Key for associated object storage
+private var ballTrailKey: UInt8 = 0
 
 // MARK: - Delegate Implementations
 extension CleanGameScene: CollisionHandlerDelegate {

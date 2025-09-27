@@ -19,29 +19,31 @@ protocol BallRendererProtocol {
     func showBallTouchFeedback(_ ballNode: SKNode)
     func showDragFeedback(_ ballNode: SKNode, dragStart: Position, dragEnd: Position)
     func hideBallTouchFeedback(_ ballNode: SKNode)
+    func createBallTrail(from positions: [Position], in scene: SKScene)
+    func clearBallTrail(from scene: SKScene)
 }
 
 class BallRenderer: BallRendererProtocol {
 
     func createBallNode() -> SKNode {
-        let ballRadius: CGFloat = 8 // Smaller ball - more realistic size
+        let ballRadius = Constants.Ball.radius
         let ballContainer = SKNode()
         ballContainer.name = "golfBall"
 
         // Control radius indicator (shows where you can touch)
-        let controlRadius = SKShapeNode(circleOfRadius: 80) // Match the ball control radius
-        controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.2)
+        let controlRadius = SKShapeNode(circleOfRadius: Constants.Ball.controlRadius)
+        controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: Constants.Colors.UI.controlRadiusAlpha)
         controlRadius.fillColor = .clear
-        controlRadius.lineWidth = 1
+        controlRadius.lineWidth = Constants.UI.borderWidth
         controlRadius.zPosition = 5
         controlRadius.name = "controlRadius"
         ballContainer.addChild(controlRadius)
 
         // Main ball
         let ball = SKShapeNode(circleOfRadius: ballRadius)
-        ball.fillColor = SKColor(red: 0.98, green: 0.98, blue: 0.98, alpha: 1.0)
-        ball.strokeColor = SKColor(red: 0.85, green: 0.85, blue: 0.85, alpha: 1.0)
-        ball.lineWidth = 1
+        ball.fillColor = Constants.Colors.Ball.whiteColor
+        ball.strokeColor = Constants.Colors.Ball.strokeColor
+        ball.lineWidth = Constants.UI.borderWidth
         ball.zPosition = 10
         ballContainer.addChild(ball)
 
@@ -91,7 +93,7 @@ class BallRenderer: BallRendererProtocol {
     // MARK: - Private Helpers
     private func addDimples(to ball: SKShapeNode, radius: CGFloat) {
         let dimpleCount = 12
-        let dimpleRadius: CGFloat = 1.5
+        let dimpleRadius = Constants.Trail.dotRadius
 
         for i in 0..<dimpleCount {
             let angle = (CGFloat(i) / CGFloat(dimpleCount)) * 2 * .pi
@@ -101,7 +103,7 @@ class BallRenderer: BallRendererProtocol {
 
             let dimple = SKShapeNode(circleOfRadius: dimpleRadius)
             dimple.position = CGPoint(x: x, y: y)
-            dimple.fillColor = SKColor(red: 0.90, green: 0.90, blue: 0.90, alpha: 0.6)
+            dimple.fillColor = Constants.Colors.Ball.dimpleColor
             dimple.strokeColor = .clear
             ball.addChild(dimple)
         }
@@ -177,7 +179,36 @@ extension BallRenderer {
         touchRing.name = "touchRing"
 
         ballNode.addChild(touchRing)
-        print("🎯 Touch feedback: Ball control ring activated")
+
+        // Also show tracking indicator
+        showTrackingIndicator(ballNode)
+        print("🎯 Touch feedback: Ball control ring activated with tracking")
+    }
+
+    private func showTrackingIndicator(_ ballNode: SKNode) {
+        // Remove existing tracking indicator
+        ballNode.childNode(withName: "trackingIndicator")?.removeFromParent()
+
+        // Create tracking pulse effect
+        let trackingIndicator = SKShapeNode(circleOfRadius: 15)
+        trackingIndicator.strokeColor = SKColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 1.0)
+        trackingIndicator.fillColor = SKColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 0.2)
+        trackingIndicator.lineWidth = 2
+        trackingIndicator.zPosition = 9
+        trackingIndicator.name = "trackingIndicator"
+
+        // Add pulsing animation
+        let scaleUp = SKAction.scale(to: 1.3, duration: 0.5)
+        let scaleDown = SKAction.scale(to: 1.0, duration: 0.5)
+        let fadeOut = SKAction.fadeAlpha(to: 0.3, duration: 0.5)
+        let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.5)
+        let pulse = SKAction.sequence([
+            SKAction.group([scaleUp, fadeOut]),
+            SKAction.group([scaleDown, fadeIn])
+        ])
+        trackingIndicator.run(SKAction.repeatForever(pulse))
+
+        ballNode.addChild(trackingIndicator)
     }
 
     func showDragFeedback(_ ballNode: SKNode, dragStart: Position, dragEnd: Position) {
@@ -197,7 +228,7 @@ extension BallRenderer {
         dragLine.name = "dragLine"
 
         // Add arrow at end
-        let arrowPath = createArrowPath(at: relative.cgPoint)
+        let arrowPath = createArrowPath(at: relative.cgPoint, direction: relative)
         let arrow = SKShapeNode(path: arrowPath)
         arrow.fillColor = SKColor(red: 1.0, green: 0.6, blue: 0.0, alpha: 0.9)
         arrow.strokeColor = .clear
@@ -213,17 +244,91 @@ extension BallRenderer {
     func hideBallTouchFeedback(_ ballNode: SKNode) {
         ballNode.childNode(withName: "touchRing")?.removeFromParent()
         ballNode.childNode(withName: "dragLine")?.removeFromParent()
+        ballNode.childNode(withName: "trackingIndicator")?.removeFromParent()
         print("🚫 Touch feedback: Ball control indicators hidden")
     }
 
-    private func createArrowPath(at position: CGPoint) -> CGPath {
-        let path = CGMutablePath()
-        let arrowSize: CGFloat = 8
+    // MARK: - Ball Trail System
+    func createBallTrail(from positions: [Position], in scene: SKScene) {
+        // Clear existing trail
+        clearBallTrail(from: scene)
 
-        // Arrow pointing in direction of the line
-        path.move(to: CGPoint(x: position.x - arrowSize, y: position.y - arrowSize/2))
-        path.addLine(to: position)
-        path.addLine(to: CGPoint(x: position.x - arrowSize, y: position.y + arrowSize/2))
+        guard positions.count > 1 else { return }
+
+        // Create trail path
+        let path = CGMutablePath()
+        path.move(to: positions[0].cgPoint)
+
+        for i in 1..<positions.count {
+            path.addLine(to: positions[i].cgPoint)
+        }
+
+        let trail = SKShapeNode(path: path)
+        trail.strokeColor = SKColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.6)
+        trail.lineWidth = Constants.Trail.lineWidth
+        trail.zPosition = 4
+        trail.name = "ballTrail"
+
+        // Add fade animation
+        let fadeAction = SKAction.fadeAlpha(to: 0.0, duration: Constants.Animation.trailFadeDuration)
+        let removeAction = SKAction.removeFromParent()
+        trail.run(SKAction.sequence([fadeAction, removeAction]))
+
+        scene.addChild(trail)
+
+        // Add trail dots for emphasis
+        for (index, position) in positions.enumerated() where index % Constants.Trail.dotSpacing == 0 {
+            let dot = SKShapeNode(circleOfRadius: Constants.Trail.dotRadius)
+            dot.fillColor = SKColor(red: 1.0, green: 0.8, blue: 0.0, alpha: 0.8)
+            dot.strokeColor = .clear
+            dot.position = position.cgPoint
+            dot.zPosition = 4
+            dot.name = "trailDot"
+
+            let fadeAction = SKAction.fadeAlpha(to: 0.0, duration: Constants.Animation.trailFadeDuration)
+            let removeAction = SKAction.removeFromParent()
+            dot.run(SKAction.sequence([fadeAction, removeAction]))
+
+            scene.addChild(dot)
+        }
+    }
+
+    func clearBallTrail(from scene: SKScene) {
+        scene.children.filter { $0.name == "ballTrail" || $0.name == "trailDot" }.forEach { $0.removeFromParent() }
+    }
+
+    private func createArrowPath(at position: CGPoint, direction: Position) -> CGPath {
+        let path = CGMutablePath()
+        let arrowSize: CGFloat = 12
+
+        // Calculate the angle of the direction vector
+        let angle = atan2(direction.y, direction.x)
+
+        // Create arrow pointing in the direction of the drag
+        // Arrow tip at the end position
+        let tip = position
+
+        // Calculate the two back points of the arrow
+        let backDistance: CGFloat = arrowSize
+        let wingSpread: CGFloat = arrowSize * 0.6
+
+        let backAngle1 = angle + .pi - 0.4  // Left wing
+        let backAngle2 = angle + .pi + 0.4  // Right wing
+
+        let leftWing = CGPoint(
+            x: tip.x + cos(backAngle1) * backDistance,
+            y: tip.y + sin(backAngle1) * backDistance
+        )
+
+        let rightWing = CGPoint(
+            x: tip.x + cos(backAngle2) * backDistance,
+            y: tip.y + sin(backAngle2) * backDistance
+        )
+
+        // Create the arrow triangle
+        path.move(to: tip)
+        path.addLine(to: leftWing)
+        path.addLine(to: rightWing)
         path.closeSubpath()
 
         return path

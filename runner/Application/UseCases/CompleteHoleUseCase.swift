@@ -61,7 +61,7 @@ class CompleteHoleUseCase: CompleteHoleUseCaseProtocol {
         ballVelocity: Velocity
     ) -> Bool {
         // Ball must be in hole and moving slowly enough
-        return hole.isBallInHole(ballPosition) && ballVelocity.magnitude < 100
+        return hole.isBallInHole(ballPosition) && ballVelocity.magnitude < Constants.Ball.stationaryThreshold
     }
 
     func calculateFinalScore(hole: Hole, strokes: Int) -> Score {

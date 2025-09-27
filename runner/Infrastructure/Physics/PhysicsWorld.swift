@@ -46,12 +46,12 @@ class PhysicsWorld: PhysicsWorldProtocol {
     }
 
     func createBallPhysicsBody() -> SKPhysicsBody {
-        let ballBody = SKPhysicsBody(circleOfRadius: 8) // Smaller radius to match visual
-        ballBody.mass = 0.15 // Heavier ball for better control and realistic physics
-        ballBody.restitution = 0.2 // Less bouncy for more realistic behavior
-        ballBody.linearDamping = 2.5 // Higher damping to stop rolling more naturally
-        ballBody.angularDamping = 1.2 // More angular damping for realistic spin
-        ballBody.friction = 0.6 // Higher friction for better stopping power
+        let ballBody = SKPhysicsBody(circleOfRadius: Constants.Ball.radius)
+        ballBody.mass = CGFloat(Constants.Ball.mass)
+        ballBody.restitution = CGFloat(Constants.Ball.restitution)
+        ballBody.linearDamping = CGFloat(Constants.Ball.linearDamping)
+        ballBody.angularDamping = CGFloat(Constants.Ball.angularDamping)
+        ballBody.friction = CGFloat(Constants.Ball.friction)
         ballBody.categoryBitMask = PhysicsCategory.ball
         ballBody.contactTestBitMask = PhysicsCategory.hole | PhysicsCategory.obstacle | PhysicsCategory.outOfBounds | PhysicsCategory.holeDampening
         ballBody.collisionBitMask = PhysicsCategory.boundary | PhysicsCategory.obstacle
@@ -94,7 +94,7 @@ class PhysicsWorld: PhysicsWorldProtocol {
 
     func createHoleDampeningArea() -> SKPhysicsBody {
         // Create a larger dampening area around the hole
-        let dampeningBody = SKPhysicsBody(circleOfRadius: 25)
+        let dampeningBody = SKPhysicsBody(circleOfRadius: Constants.Physics.holeDampingRadius)
         dampeningBody.isDynamic = false
         dampeningBody.categoryBitMask = PhysicsCategory.holeDampening
         dampeningBody.contactTestBitMask = PhysicsCategory.ball

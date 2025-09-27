@@ -53,9 +53,16 @@ class NavigateHolesUseCase: NavigateHolesUseCaseProtocol {
     }
 
     func completeRound(course: Course, player: Player) -> RoundCompletionResult {
+        // Mark the current round as complete first
+        guard let currentRound = player.currentRound else {
+            return .failure(error: "No active round to complete")
+        }
+
+        currentRound.completeRound()
+
         // Complete player's current round
         guard let completedRound = player.completeCurrentRound() else {
-            return .failure(error: "No active round to complete")
+            return .failure(error: "Failed to complete round")
         }
 
         return .success(
