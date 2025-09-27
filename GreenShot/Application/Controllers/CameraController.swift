@@ -79,11 +79,11 @@ extension CameraController {
         )
     }
 
-    func focusOn(
+    @MainActor func focusOn(
         position: Position,
         immediate: Bool = false
     ) {
-        let cameraSpeed = MainActor.assumeIsolated { settingsController.userPreferences.cameraSpeed }
+        let cameraSpeed = settingsController.userPreferences.cameraSpeed
         let duration = immediate ? 0.0 : (2.0 - cameraSpeed) // Invert so higher setting = faster camera
 
         updatePosition(
@@ -140,7 +140,7 @@ extension CameraController {
 
 // MARK: - Camera Following
 extension CameraController {
-    func followBall(
+    @MainActor func followBall(
         ballPosition: Position,
         ballVelocity: Velocity,
         predictionFactor: CGFloat = 0.5
@@ -156,7 +156,7 @@ extension CameraController {
             y: ballPosition.y + ballVelocity.dy * predictionFactor
         )
 
-        let cameraSpeed = MainActor.assumeIsolated { settingsController.userPreferences.cameraSpeed }
+        let cameraSpeed = settingsController.userPreferences.cameraSpeed
         let duration = 1.0 - (cameraSpeed * 0.5) // Speed range: 0.5s to 1.0s
 
         updatePosition(

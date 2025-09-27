@@ -35,13 +35,13 @@ class BallRenderer: BallRendererProtocol {
         self.settingsController = settingsController
     }
 
-    func createBallNode() -> SKNode {
+    @MainActor func createBallNode() -> SKNode {
         let ballRadius = Constants.Ball.radius
         let ballContainer = SKNode()
         ballContainer.name = "golfBall"
 
         // Control radius indicator (shows where you can touch) - only if enabled in settings
-        if MainActor.assumeIsolated({ settingsController.userPreferences.showControlRadius }) {
+        if settingsController.userPreferences.showControlRadius {
             let controlRadius = SKShapeNode(circleOfRadius: Constants.Ball.controlRadius)
             controlRadius.strokeColor = SKColor(red: 1.0, green: 1.0, blue: 1.0, alpha: Constants.Colors.UI.controlRadiusAlpha)
             controlRadius.fillColor = .clear
@@ -124,10 +124,9 @@ class BallRenderer: BallRendererProtocol {
 
 // MARK: - Ball Physics Visualization
 extension BallRenderer {
-    func createTrajectoryPreview(_ positions: [Position]) -> [SKNode] {
+    @MainActor func createTrajectoryPreview(_ positions: [Position]) -> [SKNode] {
         // Only create trajectory preview if enabled in settings
-        let showTrajectoryPreview = MainActor.assumeIsolated { settingsController.userPreferences.showTrajectoryPreview }
-        guard showTrajectoryPreview else {
+        guard settingsController.userPreferences.showTrajectoryPreview else {
             return []
         }
 
@@ -267,10 +266,9 @@ extension BallRenderer {
     }
 
     // MARK: - Ball Trail System (Optimized)
-    func createBallTrail(from positions: [Position], in scene: SKScene) {
+    @MainActor func createBallTrail(from positions: [Position], in scene: SKScene) {
         // Only create trail if enabled in settings
-        let enableTrailEffects = MainActor.assumeIsolated { settingsController.userPreferences.enableTrailEffects }
-        guard enableTrailEffects else {
+        guard settingsController.userPreferences.enableTrailEffects else {
             clearBallTrail(from: scene)
             return
         }

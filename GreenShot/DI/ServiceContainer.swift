@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import SwiftUI
+import SwiftData
 
 protocol ServiceContainerProtocol {
     func register<T>(_ serviceType: T.Type, factory: @escaping () -> T)
@@ -217,12 +218,17 @@ class DefaultServiceConfiguration: ServiceConfiguration {
 
         // MARK: - Persistence Services
         container.register(PersistenceServiceProtocol.self, scope: .singleton) {
-            let config: ConfigurationProtocol = container.resolve(ConfigurationProtocol.self)
-            if config.environment.isDebug {
-                return MockPersistenceService()
-            } else {
-                // In production, we'd need to set up SwiftData ModelContainer
-                // For now, return mock to avoid setup complexity
+            // Create SwiftData ModelContainer for real persistence
+            do {
+                let schema = Schema([GameSession.self])
+                let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+                let modelContainer = try ModelContainer(for: schema, configurations: [modelConfiguration])
+
+                // Use real PersistenceService for actual settings persistence
+                return PersistenceService(modelContainer: modelContainer)
+            } catch {
+                print("❌ Failed to create ModelContainer: \(error)")
+                print("⚠️ Falling back to MockPersistenceService")
                 return MockPersistenceService()
             }
         }
