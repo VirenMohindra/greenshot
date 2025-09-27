@@ -163,7 +163,7 @@ extension GameController {
 
     private func submitScoreToGameCenter(_ score: Int) async {
         do {
-            try await gameCenterService.submitScore(score, to: "com.runner.leaderboard.total_score")
+            try await gameCenterService.submitScore(score, to: "oldfashioned.greenshot.leaderboard.total_score")
             print("✅ Score submitted to GameCenter: \(score)")
         } catch {
             print("❌ Failed to submit score to GameCenter: \(error)")
@@ -404,7 +404,7 @@ extension GameController {
     }
 
     func loadLeaderboard() async throws -> [LeaderboardEntry] {
-        return try await gameCenterService.loadLeaderboard("com.runner.leaderboard.total_score")
+        return try await gameCenterService.loadLeaderboard("oldfashioned.greenshot.leaderboard.total_score")
     }
 
     func reportAchievement(_ achievementID: String, progress: Double) async {
@@ -412,6 +412,20 @@ extension GameController {
             try await gameCenterService.reportAchievement(achievementID, progress: progress)
         } catch {
             print("❌ Failed to report achievement: \(error)")
+        }
+    }
+
+    func openGameCenter() {
+        Task {
+            await authenticateGameCenter()
+
+            if isGameCenterAuthenticated {
+                print("🎮 GameCenter authenticated - ready to show leaderboards/achievements")
+                // GameCenter UI will be handled by the platform's native presentation
+                // This triggers authentication which will show GameCenter UI if needed
+            } else {
+                print("❌ GameCenter authentication failed")
+            }
         }
     }
 }

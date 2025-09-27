@@ -39,16 +39,16 @@ class GameCenterService: GameCenterServiceProtocol {
 
     // MARK: - Properties
     private let leaderboardCategories = [
-        "com.runner.leaderboard.total_score",
-        "com.runner.leaderboard.best_round",
-        "com.runner.leaderboard.holes_in_one"
+        "oldfashioned.greenshot.leaderboard.total_score",
+        "oldfashioned.greenshot.leaderboard.best_round",
+        "oldfashioned.greenshot.leaderboard.holes_in_one"
     ]
 
     private let achievementCategories = [
-        "com.runner.achievement.first_game",
-        "com.runner.achievement.hole_in_one",
-        "com.runner.achievement.eagle",
-        "com.runner.achievement.complete_course"
+        "oldfashioned.greenshot.achievement.first_game",
+        "oldfashioned.greenshot.achievement.hole_in_one",
+        "oldfashioned.greenshot.achievement.eagle",
+        "oldfashioned.greenshot.achievement.complete_course"
     ]
 
     // MARK: - Initialization

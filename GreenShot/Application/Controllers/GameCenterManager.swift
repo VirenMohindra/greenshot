@@ -90,14 +90,14 @@ class GameCenterManager: ObservableObject {
     private func setupAchievementTracking() {
         // Initialize achievement progress tracking
         achievementTracker = [
-            "com.runner.achievement.first_game": 0.0,
-            "com.runner.achievement.hole_in_one": 0.0,
-            "com.runner.achievement.eagle": 0.0,
-            "com.runner.achievement.complete_course": 0.0,
-            "com.runner.achievement.birdie_streak": 0.0,
-            "com.runner.achievement.par_round": 0.0,
-            "com.runner.achievement.under_par": 0.0,
-            "com.runner.achievement.course_master": 0.0
+            "oldfashioned.greenshot.achievement.first_game": 0.0,
+            "oldfashioned.greenshot.achievement.hole_in_one": 0.0,
+            "oldfashioned.greenshot.achievement.eagle": 0.0,
+            "oldfashioned.greenshot.achievement.complete_course": 0.0,
+            "oldfashioned.greenshot.achievement.birdie_streak": 0.0,
+            "oldfashioned.greenshot.achievement.par_round": 0.0,
+            "oldfashioned.greenshot.achievement.under_par": 0.0,
+            "oldfashioned.greenshot.achievement.course_master": 0.0
         ]
     }
 
@@ -114,7 +114,7 @@ class GameCenterManager: ObservableObject {
         do {
             // Submit total score to main leaderboard
             let relativeScore = score.strokes - score.par
-            try await gameCenterService.submitScore(relativeScore, to: "com.runner.leaderboard.total_score")
+            try await gameCenterService.submitScore(relativeScore, to: "oldfashioned.greenshot.leaderboard.total_score")
 
             // Check and report course completion achievements
             await checkCourseCompletionAchievements(score: score)
@@ -142,14 +142,14 @@ class GameCenterManager: ObservableObject {
         do {
             // Hole in one achievement
             if relativeToPar <= -hole.par + 1 {  // Hole in one (1 stroke regardless of par)
-                try await reportAchievementProgress("com.runner.achievement.hole_in_one", progress: 100.0)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.hole_in_one", progress: 100.0)
             }
 
             // Eagle achievement (-2 or better)
             if relativeToPar <= -2 {
-                let currentProgress = achievementTracker["com.runner.achievement.eagle"] ?? 0.0
+                let currentProgress = achievementTracker["oldfashioned.greenshot.achievement.eagle"] ?? 0.0
                 let newProgress = min(100.0, currentProgress + 25.0) // 4 eagles = 100%
-                try await reportAchievementProgress("com.runner.achievement.eagle", progress: newProgress)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.eagle", progress: newProgress)
             }
 
         } catch {
@@ -162,26 +162,26 @@ class GameCenterManager: ObservableObject {
             // First game completion
             let stats = try persistenceService.loadPlayerStats()
             if stats?.roundsPlayed == 1 {
-                try await reportAchievementProgress("com.runner.achievement.first_game", progress: 100.0)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.first_game", progress: 100.0)
             }
 
             // Complete course achievement
-            try await reportAchievementProgress("com.runner.achievement.complete_course", progress: 100.0)
+            try await reportAchievementProgress("oldfashioned.greenshot.achievement.complete_course", progress: 100.0)
 
             // Par or better round
             if score.strokes <= score.par {
-                try await reportAchievementProgress("com.runner.achievement.par_round", progress: 100.0)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.par_round", progress: 100.0)
             }
 
             // Under par round
             if score.strokes < score.par {
-                try await reportAchievementProgress("com.runner.achievement.under_par", progress: 100.0)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.under_par", progress: 100.0)
             }
 
             // Course master (multiple course completions)
             if let roundsPlayed = stats?.roundsPlayed, roundsPlayed >= 10 {
                 let progress = min(100.0, Double(roundsPlayed) * 10.0) // 10 rounds = 100%
-                try await reportAchievementProgress("com.runner.achievement.course_master", progress: progress)
+                try await reportAchievementProgress("oldfashioned.greenshot.achievement.course_master", progress: progress)
             }
 
         } catch {
@@ -218,7 +218,7 @@ class GameCenterManager: ObservableObject {
         isLoadingLeaderboard = true
 
         do {
-            let entries = try await gameCenterService.loadLeaderboard("com.runner.leaderboard.total_score")
+            let entries = try await gameCenterService.loadLeaderboard("oldfashioned.greenshot.leaderboard.total_score")
 
             await MainActor.run {
                 self.leaderboardEntries = entries
@@ -265,11 +265,11 @@ enum GameCenterLeaderboardCategory {
     var identifier: String {
         switch self {
         case .totalScore:
-            return "com.runner.leaderboard.total_score"
+            return "oldfashioned.greenshot.leaderboard.total_score"
         case .bestRound:
-            return "com.runner.leaderboard.best_round"
+            return "oldfashioned.greenshot.leaderboard.best_round"
         case .holesInOne:
-            return "com.runner.leaderboard.holes_in_one"
+            return "oldfashioned.greenshot.leaderboard.holes_in_one"
         }
     }
 }

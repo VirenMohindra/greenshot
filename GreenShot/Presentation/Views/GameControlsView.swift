@@ -46,6 +46,10 @@ struct GameControlsView: View {
                         viewModel.openLeaderboard()
                     }
 
+                    GameCenterButton {
+                        viewModel.openGameCenter()
+                    }
+
                     DebugButton {
                         viewModel.openHoleDebug()
                     }
@@ -137,6 +141,28 @@ struct LeaderboardButton: View {
             Image(systemName: "trophy.fill")
                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                 .foregroundColor(.goldenYellow)
+                .frame(width: Constants.UI.buttonSize, height: Constants.UI.buttonSize)
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(Constants.Colors.UI.buttonBackgroundAlpha))
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white.opacity(Constants.Colors.UI.buttonBorderAlpha), lineWidth: Constants.UI.borderWidth)
+                        )
+                )
+                .shadow(color: .black.opacity(Constants.Colors.UI.shadowOpacityAlpha), radius: Constants.UI.shadowRadius, x: 0, y: 2)
+        }
+    }
+}
+
+struct GameCenterButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: "gamecontroller.fill")
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .foregroundColor(.orange)
                 .frame(width: Constants.UI.buttonSize, height: Constants.UI.buttonSize)
                 .background(
                     Circle()

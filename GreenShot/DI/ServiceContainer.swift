@@ -240,9 +240,10 @@ class DefaultServiceConfiguration: ServiceConfiguration {
             if config.environment == .development {
                 return MockGameCenterService()
             } else {
-                // Return mock for now to avoid MainActor initialization issues
-                // In production, this would be properly initialized on MainActor
-                return MockGameCenterService()
+                // Use real GameCenter service
+                return MainActor.assumeIsolated {
+                    GameCenterService()
+                }
             }
         }
 

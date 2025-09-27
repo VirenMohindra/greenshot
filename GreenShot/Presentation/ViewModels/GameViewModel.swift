@@ -240,6 +240,10 @@ extension GameViewModel {
     func closeHoleDebug() {
         showHoleDebug = false
     }
+
+    func openGameCenter() {
+        gameController.openGameCenter()
+    }
 }
 
 // MARK: - Celebration and Progression
