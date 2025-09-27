@@ -1,4 +1,4 @@
-name: iOS starter workflow
+name: iOS CI
 
 on:
   push:
@@ -7,38 +7,144 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-    name: Build and Test default scheme using any available iPhone simulator
+  build-and-test:
+    name: Build and Test GreenShot
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        destination: ["platform=iOS Simulator,name=iPhone 16"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          # Use the latest available Xcode version
+          if [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -switch /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -switch /Applications/Xcode_15.4.app/Contents/Developer
+          else
+            echo "Using default Xcode"
+            sudo xcode-select --print-path
+          fi
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Show available simulators
+        run: xcrun simctl list devices available
+
+      - name: Install xcpretty
+        run: |
+          if ! command -v xcpretty &> /dev/null; then
+            gem install xcpretty
+          fi
+
+      - name: Clean build directory
+        run: |
+          rm -rf build/
+          rm -rf DerivedData/
+
+      - name: Build GreenShot
+        run: |
+          if command -v xcpretty &> /dev/null; then
+            xcodebuild clean build \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "${{ matrix.destination }}" \
+              -configuration Debug \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
+              | xcpretty --color --report html --output build-report.html
+          else
+            xcodebuild clean build \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "${{ matrix.destination }}" \
+              -configuration Debug \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          fi
+
+      - name: Run Unit Tests
+        run: |
+          if command -v xcpretty &> /dev/null; then
+            xcodebuild test \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "${{ matrix.destination }}" \
+              -only-testing:GreenShotTests \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
+              | xcpretty --color --report html --output test-report.html
+          else
+            xcodebuild test \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "${{ matrix.destination }}" \
+              -only-testing:GreenShotTests \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: build-reports
+          path: |
+            build-report.html
+            test-report.html
+
+  code-quality:
+    name: Code Quality Checks
     runs-on: macos-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set Default Scheme
+
+      - name: Select Xcode
         run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
-      - name: Build
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+          # Use the latest available Xcode version
+          if [ -d "/Applications/Xcode_16.0.app" ]; then
+            sudo xcode-select -switch /Applications/Xcode_16.0.app/Contents/Developer
+          elif [ -d "/Applications/Xcode_15.4.app" ]; then
+            sudo xcode-select -switch /Applications/Xcode_15.4.app/Contents/Developer
+          else
+            echo "Using default Xcode"
+            sudo xcode-select --print-path
+          fi
+
+      - name: Swift Format Check (if swiftformat is available)
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild build-for-testing -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
-      - name: Test
-        env:
-          scheme: ${{ 'default' }}
-          platform: ${{ 'iOS Simulator' }}
+          if command -v swiftformat &> /dev/null; then
+            echo "Running swiftformat check..."
+            swiftformat --lint GreenShot/
+          else
+            echo "swiftformat not available, skipping format check"
+          fi
+        continue-on-error: true
+
+      - name: Analyze code with xcodebuild
         run: |
-          # xcrun xctrace returns via stderr, not the expected stdout (see https://developer.apple.com/forums/thread/663959)
-          device=`xcrun xctrace list devices 2>&1 | grep -oE 'iPhone.*?[^\(]+' | head -1 | awk '{$1=$1;print}' | sed -e "s/ Simulator$//"`
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          if [ "`ls -A | grep -i \\.xcworkspace\$`" ]; then filetype_parameter="workspace" && file_to_build="`ls -A | grep -i \\.xcworkspace\$`"; else filetype_parameter="project" && file_to_build="`ls -A | grep -i \\.xcodeproj\$`"; fi
-          file_to_build=`echo $file_to_build | awk '{$1=$1;print}'`
-          xcodebuild test-without-building -scheme "$scheme" -"$filetype_parameter" "$file_to_build" -destination "platform=$platform,name=$device"
+          if command -v xcpretty &> /dev/null; then
+            xcodebuild analyze \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "platform=iOS Simulator,name=iPhone 16" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO \
+              | xcpretty --color
+          else
+            xcodebuild analyze \
+              -project GreenShot.xcodeproj \
+              -scheme GreenShot \
+              -destination "platform=iOS Simulator,name=iPhone 16" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          fi
+        continue-on-error: true

@@ -5,6 +5,7 @@
 
   **A premium iOS golf game featuring procedural course generation, realistic physics, and Game Center integration**
 
+  [![iOS CI](https://github.com/virenmohindra/greenshot/actions/workflows/ios.yml/badge.svg)](https://github.com/virenmohindra/greenshot/actions/workflows/ios.yml)
   [![Swift](https://img.shields.io/badge/Swift-5.9-orange.svg)](https://swift.org)
   [![iOS](https://img.shields.io/badge/iOS-17.0+-blue.svg)](https://developer.apple.com/ios/)
   [![SpriteKit](https://img.shields.io/badge/SpriteKit-Powered-green.svg)](https://developer.apple.com/spritekit/)
